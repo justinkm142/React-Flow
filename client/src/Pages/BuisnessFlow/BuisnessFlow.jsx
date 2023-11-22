@@ -49,7 +49,7 @@ const token =
 
 
 const nodeWidth = 200;
-const nodeHeight = 100;
+const nodeHeight = 120;
 
 
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -177,18 +177,29 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
       if(data.id===oldDefaultNode[0].id){
         return {...data, type:"businessUnit"}
       }
+      
       return data
     })
 
+    let set =0
     let newEdges = edges.map((data)=>{
       if(data.source==="stratNodeId"){
+        set++
         return {...data, source: node.id} 
       }
       if(data.target===node.id){
+        set++
         return {...data, source: "stratNodeId"} 
       }
       return data
     })
+
+    if(set<2){
+      newEdges.push({id:`${newDefaultNode.id}-2`, source:"stratNodeId", target:newDefaultNode.id, animated:true})
+    }
+
+
+
     console.log(newEdges)
 
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(tempNodes, newEdges, "TB");
@@ -424,6 +435,9 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
       </ReactFlowProvider>
       {PropertyMenu(handleSideMenu, openSideMenu, node,updateNode)}
       <Snackbar
+        sx={{
+          marginTop:"60px"
+        }}
         open={openSnackbar}
         autoHideDuration={3000}
         onClose={() => {

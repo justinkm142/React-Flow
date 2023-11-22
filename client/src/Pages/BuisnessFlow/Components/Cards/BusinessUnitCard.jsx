@@ -26,14 +26,17 @@ export function BusinessUnit(props) {
             height:"30px",
           }}
         >
-          <Typography variant="p" sx={{ fontSize: "10px", color: "#065F46" }}>
-            {props.type}
-          </Typography>
-          <Stack direction={"row"} sx={{marginLeft:"5px", color:"black"}}>
+
+          <Stack direction={"row"} sx={{marginRight:"5px", color:"black"}}>
             {props.data.features.businessUnit ? <StorefrontOutlinedIcon fontSize="small" />: ""}
             {props.data.features.monitoringUnit ? <TroubleshootOutlinedIcon fontSize="small" />: ""}
             {props.data.features.billingUnit ? <ReceiptOutlinedIcon fontSize="small" />: ""}
           </Stack>
+
+          <Typography variant="p" sx={{ fontSize: "15px", color: "#065F46" }}>
+            {props.type}
+          </Typography>
+
         </Box>
         <Box sx={{ textAlign: "center" }}>{props.data.label}</Box>
       </CardContent>

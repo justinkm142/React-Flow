@@ -41,15 +41,17 @@ export function DefaultBusinessUnit(props) {
             alignItems: "center",
           }}
         >
-          <Typography variant="p" sx={{ fontSize: "10px", color: "#fa4b4b", display:"block" }}>
-            {props.type}
-          </Typography>
-          <Stack direction={"row"} sx={{marginLeft:"5px", color:"black"}}>
+
+          <Stack direction={"row"} sx={{marginRight:"5px", color:"black"}}>
             <SchemaOutlinedIcon sx={{rotate:"0deg"}}/>
             {/* {props.data.features.businessUnit ? <StorefrontOutlinedIcon fontSize="small" />: ""}
             {props.data.features.monitoringUnit ? <TroubleshootOutlinedIcon fontSize="small" />: ""}
             {props.data.features.billingUnit ? <ReceiptOutlinedIcon fontSize="small" />: ""} */}
           </Stack>
+
+          <Typography variant="p" sx={{ fontSize: "15px", color: "#fa4b4b", display:"block" }}>
+            {props.type}
+          </Typography>
          
         </Box>
         <Box sx={{ textAlign: "center" }}>{props.data.label}</Box>

@@ -11,7 +11,7 @@ export function BillingUnit(props) {
   const handleConnect = (params) => {};
 
   return (
-    <Card sx={{ maxWidth: 150, minWidth: 150 }}>
+    <Card sx={{ width:"200px", height:"120px" }}>
       <Handle type="target" position={Position.Top} onConnect={handleConnect} />
       <CardContent sx={{ backgroundColor: "", padding: "0px" }}>
         <Box
@@ -25,14 +25,17 @@ export function BillingUnit(props) {
             height:"30px",
           }}
         >
-          <Typography variant="p" sx={{ fontSize: "10px", color: "#075985" }}>
+        
+          <Stack direction={"row"} sx={{marginRight:"5px", color:"#075985"}}>
+            {props.data.features.businessUnit ? <StorefrontOutlinedIcon  style={{ fontSize: "15px" }} />: ""}
+            {props.data.features.monitoringUnit ? <TroubleshootOutlinedIcon style={{ fontSize: "15px" }} />: ""}
+            {props.data.features.billingUnit ? <ReceiptOutlinedIcon style={{ fontSize: "15px" }}/>: ""}
+          </Stack>
+
+          <Typography variant="p" sx={{ fontSize: "20px", color: "#075985" }}>
             {props.type}
           </Typography>
-          <Stack direction={"row"} sx={{marginLeft:"5px", color:"black"}}>
-            {props.data.features.businessUnit ? <StorefrontOutlinedIcon fontSize="small" />: ""}
-            {props.data.features.monitoringUnit ? <TroubleshootOutlinedIcon fontSize="small" />: ""}
-            {props.data.features.billingUnit ? <ReceiptOutlinedIcon fontSize="small" />: ""}
-          </Stack>
+
         </Box>
         <Box sx={{ textAlign: "center" }}>{props.data.label}</Box>
       </CardContent>
