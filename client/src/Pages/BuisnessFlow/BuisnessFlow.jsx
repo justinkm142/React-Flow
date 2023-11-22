@@ -46,19 +46,46 @@ const deletedNodes = [];
 const token =
   "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImVWZVF3eV9sUW5Wdk9MZTZrTmJzcyJ9.eyJlbWFpbCI6ImRldmVsb3BtZW50LnRlc3RAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vZGV2LTFzcG9jLnVzLmF1dGgwLmNvbS8iLCJhdWQiOiJTbzNvNTl2VVh0OHJmc0U1MzhkMnAwOFQzMW5jOW5EZyIsImlhdCI6MTY5OTI1MzkzOCwiZXhwIjoxNjk5Mjg5OTM4LCJzdWIiOiJhdXRoMHw2NTJmYzA3NGI0NGFjODQxZGQ5ZWFjNjkiLCJhdF9oYXNoIjoiaktNSWRjejZMdnhKTkRLZUk1M3ppdyIsIm5vbmNlIjoiOVBmLjhCZnFkeEthU19hVXpuQXBrcTg3UHQ3SkxRNjkifQ.KqrvsbPHl3v5EPZDqHii7it-omozEzSYtRL84LByGURHDtnXJy7U3Z0lbO-M8j9izbYwqDxKeyhHvxd7QJAhgtSShKjvxRF5O_1Wk0aX-I4br2IJvhuXwxuJSzBOvaD81SK_oPRZUZO7gVMFBFz_FiNNTGF89rn4GT32cxUnshVrbrzRYHn6AEupDAf4z6T-X1fUUF8tN3S9Sln5YmDwBMRjCH5dgnkb6j_cFbgma9x8k-esz0CdS4vsmfNY_3566R2vTMNPKetRxzU5u2oMwG3NIzCfWKWEX5NTs4c5gTg7S0krYP4XvlF7AUt0Y30PT9cRi2H0NBpjSSf77x_g1w";
 
-const dagreGraph = new dagre.graphlib.Graph();
-dagreGraph.setDefaultEdgeLabel(() => ({}));
+
+
 const nodeWidth = 200;
 const nodeHeight = 100;
 
-// auto graph making logic using dagree
+
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
+
+
+
+
+// parant component
+const LayoutFlow = () => {
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [loadPage, setloadPage] = useState(true);
+  const [openSideMenu, setSideMenu] = useState(false);
+  const [node, setNode] = useState({});
+  const [openSnackbar, setOpenSnackbar] = React.useState(false);
+  const [snackBarMessage, setSnackBarMessage] = React.useState("");
+  const [snakBarType, setSnakBarType] = React.useState("success");
+  const [loading, setLoading] = React.useState(false);
+  const [orgId, setOrgId] = React.useState("");
+
+  const navigate = useNavigate();
+
+  const handleSideMenu = (status) => {
+    setSideMenu(status);
+  };
+
+// auto graph making logic using dagree
+const dagreGraph = new dagre.graphlib.Graph();
+dagreGraph.setDefaultEdgeLabel(() => ({}));
+
 const getLayoutedElements = (nodes, edges, direction = "TB") => {
   const isHorizontal = direction === "LR";
-  dagreGraph.setGraph({ rankdir: direction });
+  dagreGraph.setGraph({ rankdir: "TB" });
 
   nodes.forEach((node) => {
     dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
@@ -88,29 +115,7 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
   return { nodes, edges };
 };
 
-const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-  initialNodes,
-  initialEdges
-);
 
-// parant component
-const LayoutFlow = () => {
-  const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(layoutedEdges);
-  const [loadPage, setloadPage] = useState(true);
-  const [openSideMenu, setSideMenu] = useState(false);
-  const [node, setNode] = useState({});
-  const [openSnackbar, setOpenSnackbar] = React.useState(false);
-  const [snackBarMessage, setSnackBarMessage] = React.useState("");
-  const [snakBarType, setSnakBarType] = React.useState("success");
-  const [loading, setLoading] = React.useState(false);
-  const [orgId, setOrgId] = React.useState("");
-
-  const navigate = useNavigate();
-
-  const handleSideMenu = (status) => {
-    setSideMenu(status);
-  };
 
   const updateNode = (node, isDefault) => {
    
@@ -155,8 +160,6 @@ const LayoutFlow = () => {
 
   };
 
-
-
   // function for make any node into Defaultnode
 
   const changeDefaultUnit = (node, Nodes)=>{
@@ -187,9 +190,11 @@ const LayoutFlow = () => {
       return data
     })
     console.log(newEdges)
-    setEdges(newEdges)
-    setNodes(tempNodes);
-    
+
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(tempNodes, newEdges, "TB");
+
+      setNodes([...layoutedNodes]);
+      setEdges([...layoutedEdges]);
   }
 
 
