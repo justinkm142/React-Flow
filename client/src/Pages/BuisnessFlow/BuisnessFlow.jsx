@@ -72,6 +72,7 @@ const LayoutFlow = () => {
   const [snakBarType, setSnakBarType] = React.useState("success");
   const [loading, setLoading] = React.useState(false);
   const [orgId, setOrgId] = React.useState("");
+  const [deletablenode, setDeletablenode] = React.useState(true)
 
   const navigate = useNavigate();
 
@@ -220,10 +221,17 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
     }
   }, []);
 
+  // function for on node click
   const onNodeClick = (e, node) => {
     setNode(node);
     handleSideMenu(true);
     console.log("node clicket", node);
+    if(node.type==="defaultBusinessUnit"){
+      setDeletablenode(false);
+    }else{
+      setDeletablenode(true);
+    }
+    
   };
 
   const getNodesFromServer = async (orgId) => {
@@ -386,7 +394,7 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
           connectionLineType={ConnectionLineType.SmoothStep}
           fitView
           nodeTypes={nodeTypes}
-          deleteKeyCode={"Delete"}
+          deleteKeyCode={deletablenode ? "Delete": ""}
         >
           {loading && (
             <Box sx={{ width: "100%" }}>

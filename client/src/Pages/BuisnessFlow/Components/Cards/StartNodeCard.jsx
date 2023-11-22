@@ -10,7 +10,7 @@ export function StartNode(props) {
   const handleConnect = (params) => {};
 
   return (
-    <Card sx={{ minWidth: 150 }}>
+    <Card sx={{ width:"200px", height:"120px"}}>
       <CardContent>
         <Grid textAlign={"center"}>
           <AccountTreeIcon fontSize="large" />

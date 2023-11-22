@@ -27,6 +27,7 @@ class FlowController {
             position: { x: 100, y: 0 },
             data: { label: "Start Node" },
             type: "startNode",
+            hidden:true
           });
         }
         if (data.type === "defaultBusinessUnit") {
@@ -35,6 +36,7 @@ class FlowController {
             source: "stratNodeId",
             target: data._id,
             animated: true,
+            hidden:false
           });
           node[0] = {
             ...node[0],
@@ -46,6 +48,7 @@ class FlowController {
             source: data.parent_id,
             target: data._id,
             animated: true,
+            hidden:false
           });
         }
         node.push({
