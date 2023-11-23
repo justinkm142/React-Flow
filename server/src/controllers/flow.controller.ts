@@ -87,7 +87,7 @@ class FlowController {
           features: writeNodesResponse.features,
         },
         type: writeNodesResponse.type,
-        position: { x: 100, y: 100 },
+        position: { x: 100, y: 200 },
       };
 
       res.status(200).json({ node });

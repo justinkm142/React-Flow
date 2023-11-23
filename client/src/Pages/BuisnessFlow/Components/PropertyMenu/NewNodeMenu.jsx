@@ -101,6 +101,7 @@ const FormForUpdate = ({ toggleDrawer, node, updateNode }) => {
   );
 
   const [values, setValues] = React.useState({ ...node });
+  const [isDefault, setIsDefault] = React.useState(false);
 
   //   const onChangeImageUpload = (imageItem) => {
   //     setCurrentLogo(imageItem[0].dataURL);
@@ -155,7 +156,21 @@ const FormForUpdate = ({ toggleDrawer, node, updateNode }) => {
           },
         };
       });
-    } else {
+    } else if (e.target.id === "makeDefaultBusinessUnit"){
+      setIsDefault(e.target.checked)
+      if(e.target.checked){
+        setValues((prev) => {
+          return {
+            ...prev,
+            data: {
+              ...prev.data,
+              features: { ...prev.data.features, billingUnit: true,monitoringUnit:true,businessUnit:true },
+            },
+          };
+        });
+      }
+    } 
+    else {
       return null;
     }
     console.log(values);
@@ -307,6 +322,26 @@ const FormForUpdate = ({ toggleDrawer, node, updateNode }) => {
                 </FormControl>
                 <FormControl fullWidth sx={{ marginTop: "2.6rem" }}>
                   <Stack direction="column" spacing={1} alignItems="baseline">
+                  <FormGroup>
+
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              id="makeDefaultBusinessUnit"
+                              checked={
+                                isDefault || false
+                              }
+                              onChange={(e) => {
+                                handleCheckBox(e);
+                              }}
+                            />
+                          }
+                          label="Make Default BusinessUnit"
+                        />
+
+                        </FormGroup>
+
+
                     <Typography component="h2" variant="h6" mb={3}>
                       Features
                     </Typography>
@@ -372,7 +407,7 @@ const FormForUpdate = ({ toggleDrawer, node, updateNode }) => {
                     className="btn-theme"
                     onClick={() => {
                       toggleDrawer();
-                      updateNode(values);
+                      updateNode(values,isDefault);
                     }}
                   >
                     Save
