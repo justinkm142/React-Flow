@@ -9,8 +9,14 @@ import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
 import styled from "@emotion/styled";
 
+import PropTypes from 'prop-types';
+import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
+import { Popper as BasePopper } from '@mui/base/Popper';
+
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 
 import {
   Autocomplete,
@@ -31,6 +37,8 @@ export default function TemporaryDrawer({
   openSideMenu,
   node,
   updateNode,
+  nodeNameList,
+  edges
 }) {
   const [state, setState] = React.useState(true);
 
@@ -68,6 +76,8 @@ export default function TemporaryDrawer({
         toggleDrawer={toggleDrawer}
         node={node}
         updateNode={updateNode}
+        nodeNameList={nodeNameList}
+        edges={edges}
       />
     </Box>
   );
@@ -94,7 +104,7 @@ export default function TemporaryDrawer({
   );
 }
 
-const FormForUpdate = ({ toggleDrawer, node, updateNode }) => {
+const FormForUpdate = ({ toggleDrawer, node, updateNode, nodeNameList , edges }) => {
   const [selectedBusinessData, setSelectedBusinessData] = React.useState({});
   const [currentLogo, setCurrentLogo] = React.useState(
     selectedBusinessData.icon ? selectedBusinessData.icon : ""
@@ -102,13 +112,35 @@ const FormForUpdate = ({ toggleDrawer, node, updateNode }) => {
 
   const [values, setValues] = React.useState({ ...node });
   const [isDefault, setIsDefault] = React.useState(false);
+  const [nameError, setNameError] = React.useState(false);
+  const [parantChange, setParantChange] = React.useState({status:false, newParantId:"",oldParantId:"", nodeId:node.id });
+  const [parantId, setParantId] = React.useState("")
 
   //   const onChangeImageUpload = (imageItem) => {
   //     setCurrentLogo(imageItem[0].dataURL);
   // };
 
+  React.useEffect(()=>{
+
+    let getparantId = edges.filter((data)=>{
+      if(data.target ===values.id){
+        return data.source
+      }})[0]?.source || ""
+      
+      setParantId(getparantId)
+
+  },[])
+
+
   const handleChange = (e) => {
     if (e.target.name === "name") {
+      let nameList = nodeNameList.map(data=>data.name)
+      if(nameList.includes(e.target.value)){
+          setNameError(true)
+      }else{
+        setNameError(false)
+      }
+
       setValues((prev) => {
         return { ...prev, data: { ...prev.data, label: e.target.value } };
       });
@@ -176,45 +208,33 @@ const FormForUpdate = ({ toggleDrawer, node, updateNode }) => {
     console.log(values);
   };
 
-  const ImageBox = styled(Box)`
-    width: 80px;
-    height: 80px;
-    margin: 8px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1;
 
-    &:hover > #closeIcon {
-      cursor: pointer;
-      display: flex;
-      z-index: 2;
-    }
-
-    &:hover > #overlayBox {
-      opacity: 1;
-      cursor: pointer;
-    }
-  `;
-
-  const OverlayBox = styled(Box)`
-    position: absolute;
-    background-color: rgba(0, 0, 0, 0.5);
-    opacity: 0;
-    width: 80px;
-    height: 80px;
-    z-index: 1;
-  `;
-
-  const AutoComplete = styled(Autocomplete)`
-    & .MuiInputBase-input {
-      height: 2rem;
-    }
-  `;
 
   React.useEffect(() => {
     setCurrentLogo(selectedBusinessData.icon ? selectedBusinessData.icon : "");
   }, [selectedBusinessData.icon]);
+
+  const handleParantChange = (e)=>{
+    let oldParantId = edges.filter((data)=>{
+      if(data.target ===values.id){
+        
+        return data
+      }
+      
+    })[0]?.source || ""
+
+    let newParantId = e.target.value
+    setParantId(e.target.value)
+   
+    if (oldParantId===newParantId){
+      setParantChange({...parantChange, status:false, newParantId:newParantId,oldParantId:oldParantId})
+    }else{
+      setParantChange({...parantChange, status:true, newParantId:newParantId,oldParantId:oldParantId})
+    }
+
+    console.log("parantChange", parantChange)
+  } 
+
 
   return (
     <>
@@ -291,6 +311,8 @@ const FormForUpdate = ({ toggleDrawer, node, updateNode }) => {
                       type="text"
                       value={values?.data?.label}
                       onChange={handleChange}
+                      error={nameError}
+                      helperText={ nameError ?  "Name already used" : ''}
                       sx={{
                         "& legend": { display: "none" },
                         "& fieldset": { top: 0 },
@@ -341,6 +363,56 @@ const FormForUpdate = ({ toggleDrawer, node, updateNode }) => {
                       />
 
                       </FormGroup>
+
+
+                      <Typography component="h2" variant="h6" mb={3}>
+                        Parent Business Unit
+                    </Typography>
+                    <FormGroup>
+                      
+                          
+                                    <TextField
+                                    fullWidth={true}
+                                    select
+                                    disabled={isDefault}
+                                        labelId="demo-simple-select-label"
+                                        id="demo-simple-select"
+                                        SelectProps={{
+                                          MenuProps: {
+                                              sx: {maxHeight: 400, maxWidth: 250},
+                                              PaperProps: {sx: {boxShadow: 'rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px', borderRadius: '8px'},
+                                                    }
+                                          }
+                                      }}
+                                      sx={{
+                                          '& legend': {display: 'none'},
+                                          '& fieldset': {top: 0},
+                                          width:"330px"
+
+                                      }}
+
+                                        label=""
+                                        value={parantId}
+                                        onChange={(e)=>{handleParantChange(e)}} 
+                                        
+                                      >
+                                        {
+                                          
+                                          nodeNameList.map((data, key)=>{
+                                            console.log(parantId,"<<<<<>>>>>>",data.id)
+                                                 if(data.id!=values.id && data.id !="stratNodeId"){
+                                                  
+                                                  return <MenuItem  key={key} value={data.id}>{data.name}</MenuItem>
+                                                 } 
+                                                return null
+                                          })}
+                   
+                                      </TextField>
+
+                      
+                    
+                    </FormGroup>
+
                     <Typography component="h2" variant="h6" mb={3}>
                       Features
                     </Typography>
@@ -402,11 +474,11 @@ const FormForUpdate = ({ toggleDrawer, node, updateNode }) => {
                     color="secondary"
                     size="large"
                     type="button"
-                    disabled={false}
+                    disabled={nameError}
                     className="btn-theme"
                     onClick={() => {
                       toggleDrawer();
-                      updateNode(values,isDefault);
+                      updateNode(values,isDefault,parantChange);
                     }}
                   >
                     Save

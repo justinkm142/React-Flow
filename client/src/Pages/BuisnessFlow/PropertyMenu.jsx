@@ -4,8 +4,10 @@ import NewNodeMenu from "./Components/PropertyMenu/NewNodeMenu";
 import BuillingUnitNodeMenu from "./Components/PropertyMenu/BillingUnitNodeMenu";
 import BuisnessUnitMenu from "./Components/PropertyMenu/BuisnessUnitMenu";
 
-const PropertyMenu = (handleSideMenu, openSideMenu, node,  updateNode ) => {
+const PropertyMenu = (handleSideMenu, openSideMenu, node,  updateNode, nodeNameList, edges ) => {
   let props = {};
+
+
 
   if (node?.type === "defaultBusinessUnit") {
     return (
@@ -14,6 +16,8 @@ const PropertyMenu = (handleSideMenu, openSideMenu, node,  updateNode ) => {
         openSideMenu={openSideMenu}
         node={node}
         updateNode={updateNode}
+        nodeNameList={nodeNameList}
+        edges={edges}
       />
     );
   } else if (node?.type === "newNode") {
@@ -23,6 +27,8 @@ const PropertyMenu = (handleSideMenu, openSideMenu, node,  updateNode ) => {
         openSideMenu={openSideMenu}
         node={node}
         updateNode={updateNode}
+        nodeNameList={nodeNameList}
+        edges={edges}
       />
     );
   } else if (node?.type === "businessUnit") {
@@ -32,6 +38,8 @@ const PropertyMenu = (handleSideMenu, openSideMenu, node,  updateNode ) => {
         openSideMenu={openSideMenu}
         node={node}
         updateNode={updateNode}
+        nodeNameList={nodeNameList}
+        edges={edges}
       />
     );
   } else if (node?.type === "monitoringUnit") {
@@ -41,6 +49,8 @@ const PropertyMenu = (handleSideMenu, openSideMenu, node,  updateNode ) => {
         openSideMenu={openSideMenu}
         node={node}
         updateNode={updateNode}
+        nodeNameList={nodeNameList}
+        edges={edges}
       />
     );
   } else if (node?.type === "billingUnit") {
@@ -50,6 +60,8 @@ const PropertyMenu = (handleSideMenu, openSideMenu, node,  updateNode ) => {
         openSideMenu={openSideMenu}
         node={node}
         updateNode={updateNode}
+        nodeNameList={nodeNameList}
+        edges={edges}
       />
     );
   } else {

@@ -73,6 +73,7 @@ const LayoutFlow = () => {
   const [loading, setLoading] = React.useState(false);
   const [orgId, setOrgId] = React.useState("");
   const [deletablenode, setDeletablenode] = React.useState(true)
+  const [nodeNameList, setNodeNameList] = React.useState([])
 
   const navigate = useNavigate();
 
@@ -117,9 +118,10 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
 };
 
 
-
-  const updateNode = (node, isDefault) => {
+// function for undating nodes
+  const updateNode = (node, isDefault, parantChange) => {
    
+    
 
     let tempNodes = nodes.map((data) => {
 
@@ -155,14 +157,16 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
 
     if(isDefault){
       changeDefaultUnit(node, tempNodes)
-    }else{
+    }else if(parantChange.status===true){
+      changeParant(parantChange,tempNodes, edges)
+    }
+    else{
       setNodes(tempNodes);
     }
 
   };
 
   // function for make any node into Defaultnode
-
   const changeDefaultUnit = (node, Nodes)=>{
     let newDefaultNode = node
     let oldDefaultNode = nodes.filter((data)=>{
@@ -200,15 +204,37 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
     }
 
 
-
-    console.log(newEdges)
-
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(tempNodes, newEdges, "TB");
 
       setNodes([...layoutedNodes]);
       setEdges([...layoutedEdges]);
   }
 
+  // fucntion for change parant of the node 
+  const changeParant = (parantChange,tempNodes, edges)=>{
+   
+
+    let newEdges = []
+    if(parantChange.oldParantId===""){
+
+      newEdges = [...edges, {animated:true, hidden:false, id:`${parantChange.nodeId}-1`, source:parantChange.newParantId, target:parantChange.nodeId}]
+
+    }else{
+
+      newEdges = edges.map((data)=>{
+        if(data.target===parantChange.nodeId){
+          return ({...data, source:parantChange.newParantId})
+        }else{
+          return data
+        }
+      })
+    }
+
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(tempNodes, newEdges, "TB");
+
+    setEdges([...layoutedEdges])
+    setNodes([...layoutedNodes]);
+  }
 
   // useEffect for navigate to login page if not logedin
   React.useEffect(() => {
@@ -221,8 +247,23 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
     }
   }, []);
 
+  React.useEffect(()=>{
+    let namelist = []
+    nodes.forEach((data)=>{
+      namelist.push( {name:data.data.label, id:data.id})
+    })
+    setNodeNameList(namelist)
+  },[nodes])
+
+
+
+
+
+
   // function for on node click
+
   const onNodeClick = (e, node) => {
+    
     setNode(node);
     handleSideMenu(true);
     console.log("node clicket", node);
@@ -441,7 +482,7 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
           <Background gap={40} variant={"dots"} size={0} color="#ccc" />
         </ReactFlow>
       </ReactFlowProvider>
-      {PropertyMenu(handleSideMenu, openSideMenu, node,updateNode)}
+      {PropertyMenu(handleSideMenu, openSideMenu, node,updateNode, nodeNameList,edges)}
       <Snackbar
         sx={{
           marginTop:"60px"
@@ -478,5 +519,8 @@ window.addEventListener("beforeunload", (ev) => {
   }
   
 });
+
+
+ 
 
 export default LayoutFlow;

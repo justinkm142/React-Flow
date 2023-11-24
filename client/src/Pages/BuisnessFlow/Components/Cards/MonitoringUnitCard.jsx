@@ -34,7 +34,7 @@ export function MonitoringUnit(props) {
           </Stack>
 
           <Typography variant="p" sx={{ fontSize: "20px", color: "#075985" }}>
-            {props.type}
+          Monitoring Unit 
           </Typography>
 
 

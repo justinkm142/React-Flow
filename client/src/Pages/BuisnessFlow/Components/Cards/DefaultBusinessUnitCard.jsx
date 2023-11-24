@@ -27,7 +27,7 @@ export function DefaultBusinessUnit(props) {
   const handleConnect = (params) => {};
 
   return (
-    <Card sx={{ width:"200px", height:"120px" }}>
+    <Card sx={{ width:"250px", height:"120px" }}>
       {/* <Handle type="target" position={Position.Top} onConnect={handleConnect} isConnectable={false} /> */}
       <CardContent sx={{ backgroundColor: "", padding: "0px" }}>
         <Box
@@ -43,14 +43,14 @@ export function DefaultBusinessUnit(props) {
         >
 
           <Stack direction={"row"} sx={{marginRight:"5px", color:"#fa4b4b"}}>
-            <SchemaOutlinedIcon sx={{rotate:"0deg"}}/>
+            <SchemaOutlinedIcon sx={{rotate:"0deg", fontSize: "15px"}}/>
             {/* {props.data.features.businessUnit ? <StorefrontOutlinedIcon fontSize="small" />: ""}
             {props.data.features.monitoringUnit ? <TroubleshootOutlinedIcon fontSize="small" />: ""}
             {props.data.features.billingUnit ? <ReceiptOutlinedIcon fontSize="small" />: ""} */}
           </Stack>
 
-          <Typography variant="p" sx={{ fontSize: "15px", color: "#fa4b4b", display:"block" }}>
-            {props.type}
+          <Typography variant="p" sx={{ fontSize: "20px", color: "#fa4b4b", display:"block" }}>
+              Default Buisness Unit 
           </Typography>
          
         </Box>
