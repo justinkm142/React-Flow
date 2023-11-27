@@ -58,7 +58,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 
 
 
-
+let count=0
 
 // parant component
 const LayoutFlow = () => {
@@ -261,20 +261,77 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
 
 
   // function for on node click
-
+  let abc
   const onNodeClick = (e, node) => {
-    
-    setNode(node);
-    handleSideMenu(true);
-    console.log("node clicket", node);
-    if(node.type==="defaultBusinessUnit"){
-      setDeletablenode(false);
-    }else{
-      setDeletablenode(true);
-    }
-    
+    count++
+    console.log("count,", count)
+
+    window.clearTimeout(abc)
+    abc = setTimeout(() => {
+      if (count> 1){
+        
+        count=0
+        window.clearTimeout(abc)
+      }else{
+        
+        
+
+        setNode(node);
+        handleSideMenu(true);
+        console.log("node clicket", node);
+        if(node.type==="defaultBusinessUnit"){
+          setDeletablenode(false);
+        }else{
+          setDeletablenode(true);
+        }
+        window.clearTimeout(abc)
+        count=0
+      }
+    }, 400); 
   };
 
+   // function for add node on double click
+
+  const onNodeDoubleClick = async(e,node)=>{
+    window.clearTimeout(abc);
+    console.log("double", node)
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      try {
+        let serverRespose = await axios({
+          method: "post",
+          url: "http://localhost:4001/",
+          data: {
+            name: "New BU",
+            type: "newNode",
+            parent_id: node.id,
+            orgId:userData.accountData._id
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        
+  
+        // setNodes((nds) => [...nds, serverRespose.data.node]);
+        // setEdges((eds) => addEdge({_id:"dfjbjkdfbk", target:serverRespose.data.node.id, source: node.id , animated: true }, eds));
+
+
+        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements([...nodes,serverRespose.data.node ], [...edges,{_id:"dfjbjkdfbk", target:serverRespose.data.node.id, source: node.id , animated: true } ], "TB");
+
+        setEdges([...layoutedEdges])
+        setNodes([...layoutedNodes]);
+
+        
+
+      } catch (error) {
+        console.log(error);
+      }
+  }
+
+
+
+// axios  for  get all  node and edges from server 
   const getNodesFromServer = async (orgId) => {
     try {
       let serverRespose = await axios({
@@ -413,6 +470,7 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
     [nodes, edges]
   );
 
+
  
 
   return (
@@ -432,6 +490,7 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
           onConnect={onConnect}
           onNodeClick={onNodeClick}
           onNodesDelete={onNodesDelete}
+          onNodeDoubleClick={onNodeDoubleClick}
           connectionLineType={ConnectionLineType.SmoothStep}
           fitView
           nodeTypes={nodeTypes}
