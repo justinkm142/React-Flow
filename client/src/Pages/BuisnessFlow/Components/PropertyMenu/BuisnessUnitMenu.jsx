@@ -385,7 +385,7 @@ const FormForUpdate = ({ toggleDrawer, node, updateNode,nodeNameList , edges }) 
                                         {
                                           
                                           nodeNameList.map((data, key)=>{
-                                            console.log(parantId,"<<<<<>>>>>>",data.id)
+                                            
                                                  if(data.id!=values.id && data.id !="stratNodeId"){
                                                   
                                                   return <MenuItem  key={key} value={data.id}>{data.name}</MenuItem>
