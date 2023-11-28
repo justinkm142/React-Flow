@@ -42,7 +42,7 @@ export function BillingUnit(props) {
           </Typography>
 
         </Box>
-        <Box
+        {/* <Box
             
             sx={{display: "flex",
             justifyContent: "center",
@@ -53,7 +53,7 @@ export function BillingUnit(props) {
               <AddIcon />
               </div>
             
-        </Box>
+        </Box> */}
         </Box>
         <Box sx={{ textAlign: "center" }}>{props.data.label}</Box>
       </CardContent>
