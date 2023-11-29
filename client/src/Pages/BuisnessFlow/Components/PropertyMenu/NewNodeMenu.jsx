@@ -18,6 +18,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 
+import {updateNode } from "../../../../redux/slices/flow.slices"
 
 import {
   Autocomplete,
@@ -34,21 +35,25 @@ import {
 } from "@mui/material";
 
 
+import { useDispatch, useSelector } from "react-redux";
+import { setSideMenu } from "../../../../redux/slices/flow.slices";
 
 
+// parant componant 
 
-export default function TemporaryDrawer({
-  handleSideMenu,
-  openSideMenu,
-  node,
-  updateNode,
-  nodeNameList,
-  edges
-}) {
+
+export default function TemporaryDrawer() {
+  const dispatch = useDispatch()
+
+  const openSideMenu = useSelector((state)=> state.flow.openSideMenu)
+  const node = useSelector((state)=> state.flow.node)
+  const edges = useSelector((state)=> state.flow.edges)
+  const nodeNameList = useSelector((state)=> state.flow.nodeNameList)
+
   const [state, setState] = React.useState(true);
 
   const toggleDrawer = () => {
-    handleSideMenu(false);
+    dispatch(setSideMenu(false))
   };
 
   const Menu = () => (
@@ -82,7 +87,6 @@ export default function TemporaryDrawer({
         node={node}
         updateNode={updateNode}
         nodeNameList={nodeNameList}
-        edges={edges}
       />
     </Box>
   );
@@ -112,11 +116,14 @@ export default function TemporaryDrawer({
 
 
 // child component 
-const FormForUpdate = ({ toggleDrawer, node, updateNode, nodeNameList , edges }) => {
+const FormForUpdate = ({ toggleDrawer, nodeNameList  }) => {
   const [selectedBusinessData, setSelectedBusinessData] = React.useState({});
   const [currentLogo, setCurrentLogo] = React.useState(
     selectedBusinessData.icon ? selectedBusinessData.icon : ""
   );
+
+  const node = useSelector((state)=>state.flow.node)
+  const edges = useSelector((state)=>state.flow.edges);
 
   const [values, setValues] = React.useState({ ...node });
   const [isDefault, setIsDefault] = React.useState(false);
@@ -242,6 +249,8 @@ const FormForUpdate = ({ toggleDrawer, node, updateNode, nodeNameList , edges })
 
     console.log("parantChange", parantChange)
   } 
+
+  const dispatch = useDispatch()
 
   return (
     <>
@@ -484,7 +493,7 @@ const FormForUpdate = ({ toggleDrawer, node, updateNode, nodeNameList , edges })
                     className="btn-theme"
                     onClick={() => {
                       toggleDrawer();
-                      updateNode(values,isDefault,parantChange);
+                      dispatch(updateNode({node:{...values},parantChange:{...parantChange},isDefault}))
                     }}
                   >
                     Save

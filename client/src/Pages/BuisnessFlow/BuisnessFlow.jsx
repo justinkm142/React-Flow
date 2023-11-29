@@ -39,207 +39,102 @@ import PropertyMenu from "./PropertyMenu";
 import "reactflow/dist/style.css";
 import { useNavigate } from "react-router-dom";
 
+// store componant import
+
+import { useSelector, useDispatch } from "react-redux";
+import {
+  addStack,
+  undoStack,
+  redoStack,
+  setNodes,
+  setEdges,
+  onNodesChange,
+  onEdgesChange,
+  setSingleNode,
+  onConnect,
+  setSideMenu,
+  setSingleEdge,
+  setNode,
+  setNodeNameList,
+} from "../../redux/slices/flow.slices";
+
 // initialize values
-const initialNodes = [];
-const initialEdges = [];
+
 const deletedNodes = [];
 const token =
   "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImVWZVF3eV9sUW5Wdk9MZTZrTmJzcyJ9.eyJlbWFpbCI6ImRldmVsb3BtZW50LnRlc3RAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vZGV2LTFzcG9jLnVzLmF1dGgwLmNvbS8iLCJhdWQiOiJTbzNvNTl2VVh0OHJmc0U1MzhkMnAwOFQzMW5jOW5EZyIsImlhdCI6MTY5OTI1MzkzOCwiZXhwIjoxNjk5Mjg5OTM4LCJzdWIiOiJhdXRoMHw2NTJmYzA3NGI0NGFjODQxZGQ5ZWFjNjkiLCJhdF9oYXNoIjoiaktNSWRjejZMdnhKTkRLZUk1M3ppdyIsIm5vbmNlIjoiOVBmLjhCZnFkeEthU19hVXpuQXBrcTg3UHQ3SkxRNjkifQ.KqrvsbPHl3v5EPZDqHii7it-omozEzSYtRL84LByGURHDtnXJy7U3Z0lbO-M8j9izbYwqDxKeyhHvxd7QJAhgtSShKjvxRF5O_1Wk0aX-I4br2IJvhuXwxuJSzBOvaD81SK_oPRZUZO7gVMFBFz_FiNNTGF89rn4GT32cxUnshVrbrzRYHn6AEupDAf4z6T-X1fUUF8tN3S9Sln5YmDwBMRjCH5dgnkb6j_cFbgma9x8k-esz0CdS4vsmfNY_3566R2vTMNPKetRxzU5u2oMwG3NIzCfWKWEX5NTs4c5gTg7S0krYP4XvlF7AUt0Y30PT9cRi2H0NBpjSSf77x_g1w";
 
-
-
 const nodeWidth = 200;
 const nodeHeight = 120;
-
 
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-
-
-let count=0
+let count = 0;
 
 // parant component
 const LayoutFlow = () => {
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [loadPage, setloadPage] = useState(true);
-  const [openSideMenu, setSideMenu] = useState(false);
-  const [node, setNode] = useState({});
+
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [snackBarMessage, setSnackBarMessage] = React.useState("");
   const [snakBarType, setSnakBarType] = React.useState("success");
   const [loading, setLoading] = React.useState(false);
-  const [orgId, setOrgId] = React.useState("");
-  const [deletablenode, setDeletablenode] = React.useState(true)
-  const [nodeNameList, setNodeNameList] = React.useState([])
+  const [deletablenode, setDeletablenode] = React.useState(true);
+    
+
+  const currentState = useSelector((state) => state.flow.currentStatus);
+  const undoRedoStack = useSelector((state) => state.flow.stack);
+  const nodes = useSelector((state) => state.flow.nodes);
+  const edges = useSelector((state) => state.flow.edges);
+  const openSideMenu = useSelector((state) => state.flow.openSideMenu);
+  const node = useSelector((state) => state.flow.node);
+
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  
 
-  const handleSideMenu = (status) => {
-    setSideMenu(status);
-  };
+  // auto graph making logic using dagree
+  const dagreGraph = new dagre.graphlib.Graph();
+  dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-// auto graph making logic using dagree
-const dagreGraph = new dagre.graphlib.Graph();
-dagreGraph.setDefaultEdgeLabel(() => ({}));
+  const getLayoutedElements = (nodes, edges, direction = "TB") => {
+    const isHorizontal = direction === "LR";
+    dagreGraph.setGraph({ rankdir: "TB" });
 
-const getLayoutedElements = (nodes, edges, direction = "TB") => {
-  const isHorizontal = direction === "LR";
-  dagreGraph.setGraph({ rankdir: "TB" });
-
-  nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
-  });
-
-  edges.forEach((edge) => {
-    dagreGraph.setEdge(edge.source, edge.target);
-  });
-
-  dagre.layout(dagreGraph);
-
-  nodes.forEach((node) => {
-    const nodeWithPosition = dagreGraph.node(node.id);
-    node.targetPosition = isHorizontal ? "left" : "top";
-    node.sourcePosition = isHorizontal ? "right" : "bottom";
-
-    // We are shifting the dagre node position (anchor=center center) to the top left
-    // so it matches the React Flow node anchor point (top left).
-    node.position = {
-      x: nodeWithPosition.x - nodeWidth / 2,
-      y: nodeWithPosition.y - nodeHeight / 2,
-    };
-
-    return node;
-  });
-
-  return { nodes, edges };
-};
-
-
-// function for undating nodes
-  const updateNode = (node, isDefault, parantChange) => {
-   
-    
-
-    let tempNodes = nodes.map((data) => {
-
-    
-      if (data.id === node.id) {
-
-        if (node.type === "defaultBusinessUnit") {
-          return node;
-        }
-
-        if (node.data.features.businessUnit === true) {
-          return { ...node, type: "businessUnit" };
-        }
-
-        if (node.data.features.billingUnit === true) {
-          return { ...node, type: "billingUnit" };
-        }
-        if (node.data.features.monitoringUnit === true) {
-          return { ...node, type: "monitoringUnit" };
-        }
-        if (
-          node.data.features.monitoringUnit === false &&
-          node.data.features.billingUnit === false &&
-          node.data.features.businessUnit === false
-        ) {
-          return { ...node, type: "newNode" };
-        }
-        return node;
-      } else {
-        return data;
-      }
+    nodes.forEach((node) => {
+      dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
     });
 
-    if(isDefault){
-      changeDefaultUnit(node, tempNodes)
-    }else if(parantChange.status===true){
-      changeParant(parantChange,tempNodes, edges)
-    }
-    else{
-      setNodes(tempNodes);
-    }
+    edges.forEach((edge) => {
+      dagreGraph.setEdge(edge.source, edge.target);
+    });
 
+    dagre.layout(dagreGraph);
+
+    nodes.forEach((node) => {
+      const nodeWithPosition = dagreGraph.node(node.id);
+      node.targetPosition = isHorizontal ? "left" : "top";
+      node.sourcePosition = isHorizontal ? "right" : "bottom";
+
+      // We are shifting the dagre node position (anchor=center center) to the top left
+      // so it matches the React Flow node anchor point (top left).
+      node.position = {
+        x: nodeWithPosition.x - nodeWidth / 2,
+        y: nodeWithPosition.y - nodeHeight / 2,
+      };
+
+      return node;
+    });
+
+    return { nodes, edges };
   };
-
-  // function for make any node into Defaultnode
-  const changeDefaultUnit = (node, Nodes)=>{
-    let newDefaultNode = node
-    let oldDefaultNode = nodes.filter((data)=>{
-      if (data.type==="defaultBusinessUnit"){
-        return data
-      }
-    })
-    let tempNodes = Nodes.map((data)=>{
-      
-      if(data.id===newDefaultNode.id){
-        return {...data, type:"defaultBusinessUnit"}
-      }
-      if(data.id===oldDefaultNode[0].id){
-        return {...data, type:"businessUnit"}
-      }
-      
-      return data
-    })
-
-    let set =0
-    let newEdges = edges.map((data)=>{
-      if(data.source==="stratNodeId"){
-        set++
-        return {...data, source: node.id} 
-      }
-      if(data.target===node.id){
-        set++
-        return {...data, source: "stratNodeId"} 
-      }
-      return data
-    })
-
-    if(set<2){
-      newEdges.push({id:`${newDefaultNode.id}-2`, source:"stratNodeId", target:newDefaultNode.id, animated:true})
-    }
-
-
-    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(tempNodes, newEdges, "TB");
-
-      setNodes([...layoutedNodes]);
-      setEdges([...layoutedEdges]);
-  }
-
-  // fucntion for change parant of the node 
-  const changeParant = (parantChange,tempNodes, edges)=>{
-   
-
-    let newEdges = []
-    if(parantChange.oldParantId===""){
-
-      newEdges = [...edges, {animated:true, hidden:false, id:`${parantChange.nodeId}-1`, source:parantChange.newParantId, target:parantChange.nodeId}]
-
-    }else{
-
-      newEdges = edges.map((data)=>{
-        if(data.target===parantChange.nodeId){
-          return ({...data, source:parantChange.newParantId})
-        }else{
-          return data
-        }
-      })
-    }
-
-    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(tempNodes, newEdges, "TB");
-
-    setEdges([...layoutedEdges])
-    setNodes([...layoutedNodes]);
-  }
 
   // useEffect for navigate to login page if not logedin
   React.useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("userData"));
-    console.log("userData11", userData?.accountData?._id);
     if (userData) {
       getNodesFromServer(userData.accountData._id);
     } else {
@@ -247,91 +142,95 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
     }
   }, []);
 
-  React.useEffect(()=>{
-    let namelist = []
-    nodes.forEach((data)=>{
-      namelist.push( {name:data.data.label, id:data.id})
-    })
-    setNodeNameList(namelist)
-  },[nodes])
+  React.useEffect(() => {
+    let namelist = [];
+    nodes.forEach((data) => {
+      namelist.push({ name: data.data.label, id: data.id });
+    });
+    dispatch(setNodeNameList(namelist))
+  }, [nodes]);
 
-
-
-
-
-
-  // function for on node click
-  let abc
+  // function - open side menu  on node single click
+  let timeoutForMouseClick;
   const onNodeClick = (e, node) => {
-    count++
-    console.log("count,", count)
-
-    window.clearTimeout(abc)
-    abc = setTimeout(() => {
-      if (count> 1){
-        
-        count=0
-        window.clearTimeout(abc)
-      }else{
-        
-        
-
-        setNode(node);
-        handleSideMenu(true);
-        console.log("node clicket", node);
-        if(node.type==="defaultBusinessUnit"){
-          setDeletablenode(false);
-        }else{
-          setDeletablenode(true);
-        }
-        window.clearTimeout(abc)
-        count=0
+    count++;
+    window.clearTimeout(timeoutForMouseClick);
+    timeoutForMouseClick = setTimeout(() => {
+      if (count > 1) {
+        count = 0;
+        window.clearTimeout(timeoutForMouseClick);
+      } else {
+        //  let tempNode = {...node}
+        //  debugger
+        dispatch(setNode({ ...node }));
+        dispatch(setSideMenu(true));
+        console.log("node clicket1", node);
+        window.clearTimeout(timeoutForMouseClick);
+        count = 0;
       }
-    }, 400); 
+    }, 400);
+    if (node.type === "defaultBusinessUnit") {
+      setDeletablenode(false);
+    } else {
+      setDeletablenode(true);
+    }
   };
 
-   // function for add node on double click
+  // function - add node to its parant on double click
+  const onNodeDoubleClick = async (e, node) => {
+    window.clearTimeout(timeoutForMouseClick);
+    console.log("double", node);
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    try {
+      let serverRespose = await axios({
+        method: "post",
+        url: "http://localhost:4001/",
+        data: {
+          name: "New BU",
+          type: "newNode",
+          parent_id: node.id,
+          orgId: userData.accountData._id,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-  const onNodeDoubleClick = async(e,node)=>{
-    window.clearTimeout(abc);
-    console.log("double", node)
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      try {
-        let serverRespose = await axios({
-          method: "post",
-          url: "http://localhost:4001/",
-          data: {
-            name: "New BU",
-            type: "newNode",
-            parent_id: node.id,
-            orgId:userData.accountData._id
-          },
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-  
-        
-  
-        // setNodes((nds) => [...nds, serverRespose.data.node]);
-        // setEdges((eds) => addEdge({_id:"dfjbjkdfbk", target:serverRespose.data.node.id, source: node.id , animated: true }, eds));
+      // setNodes((nds) => [...nds, serverRespose.data.node]);
+      // setEdges((eds) => addEdge({_id:"dfjbjkdfbk", target:serverRespose.data.node.id, source: node.id , animated: true }, eds));
+
+      let nodesCopy = nodes.map((data) => {
+        return { ...data };
+      });
+      let edgesCopy = edges.map((data) => {
+        return { ...data };
+      });
+
+      const { nodes: layoutedNodes, edges: layoutedEdges } =
+        getLayoutedElements(
+          [...nodesCopy, serverRespose.data.node],
+          [
+            ...edgesCopy,
+            {
+              id: `${serverRespose.data.node.id}-2`,
+              target: serverRespose.data.node.id,
+              source: node.id,
+              animated: true,
+              hidden: false,
+            },
+          ],
+          "TB"
+        );
+
+      dispatch(setEdges([...layoutedEdges]));
+      dispatch(setNodes([...layoutedNodes]));
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
 
-        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements([...nodes,serverRespose.data.node ], [...edges,{_id:"dfjbjkdfbk", target:serverRespose.data.node.id, source: node.id , animated: true } ], "TB");
-
-        setEdges([...layoutedEdges])
-        setNodes([...layoutedNodes]);
-
-        
-
-      } catch (error) {
-        console.log(error);
-      }
-  }
-
-
-
-// axios  for  get all  node and edges from server 
+  // axios -  for  get all  node and edges from server
   const getNodesFromServer = async (orgId) => {
     try {
       let serverRespose = await axios({
@@ -343,14 +242,15 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
         },
       });
 
-      setNodes(serverRespose.data.node);
-      setEdges(serverRespose.data.edges);
+      dispatch(setNodes(serverRespose.data.node));
+      dispatch(setEdges(serverRespose.data.edges));
       setloadPage(!loadPage);
     } catch (error) {
       console.log(error);
     }
   };
 
+  // axios - add new node
   const createNodeInServer = async () => {
     const userData = JSON.parse(localStorage.getItem("userData"));
     try {
@@ -361,7 +261,7 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
           name: "New BU",
           type: "newNode",
           parent_id: "",
-          orgId:userData.accountData._id
+          orgId: userData.accountData._id,
         },
         headers: {
           Authorization: `Bearer ${token}`,
@@ -370,8 +270,8 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
 
       // console.log("serverRespose.data.node", serverRespose.data.node)
 
-      setNodes((nds) => [...nds, serverRespose.data.node]);
-
+      dispatch(setSingleNode(serverRespose.data.node));
+  
       // const newNode = {id:uniqid(), type: "newNode", parent_id:"", position:{x: 100, y: 100}, data: {features:{businessUnit: false, monitoringUnit: false, billingUnit: false} , label: "New Node"}}
 
       // setNodes((nds)=>[...nds,newNode])
@@ -380,6 +280,7 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
     }
   };
 
+  // axios - create edge
   const createEdgeInServer = async (params) => {
     try {
       let serverRespose = await axios({
@@ -400,6 +301,7 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
     }
   };
 
+  // axios - save flow in server
   const saveFlowInServer = async (nodes, edges) => {
     try {
       setLoading(true);
@@ -412,7 +314,7 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
           nodes,
           edges,
           deletedNodes,
-          orgId:userData.accountData._id
+          orgId: userData.accountData._id,
         },
         headers: {
           Authorization: `Bearer ${token}`,
@@ -438,40 +340,43 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
     }
   };
 
-  const onConnect = useCallback((params) => {
-    setEdges((eds) => addEdge({ ...params, animated: true }, eds));
-  }, []);
-
+  // function- add nodes
   const addNodes = useCallback(() => {
     createNodeInServer();
   }, []);
 
-  const handleSignOut = ()=>{
+  // function - handle signout
+  const handleSignOut = () => {
     localStorage.clear();
     navigate("/login");
-  }
+  };
 
+  //  function - handle node delete
   const onNodesDelete = useCallback(
     (deleted) => {
       deletedNodes.push(deleted[0].id);
-      setSideMenu(false);
+      dispatch(setSideMenu(false));
     },
     [nodes, edges]
   );
 
+  // function - auto arrage on click
   const onLayout = useCallback(
     (direction) => {
+      let nodesCopy = nodes.map((data) => {
+        return { ...data };
+      });
+      let edgesCopy = edges.map((data) => {
+        return { ...data };
+      });
       const { nodes: layoutedNodes, edges: layoutedEdges } =
-        getLayoutedElements(nodes, edges, direction);
+        getLayoutedElements(nodesCopy, edgesCopy, direction);
 
-      setNodes([...layoutedNodes]);
-      setEdges([...layoutedEdges]);
+      dispatch(setNodes([...layoutedNodes]));
+      dispatch(setEdges([...layoutedEdges]));
     },
     [nodes, edges]
   );
-
-
- 
 
   return (
     <div
@@ -485,16 +390,16 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
         <ReactFlow
           nodes={nodes}
           edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
+          onNodesChange={(nds) => dispatch(onNodesChange(nds))}
+          onEdgesChange={(eds) => dispatch(onEdgesChange(eds))}
+          onConnect={(connection) => dispatch(onConnect(connection))}
           onNodeClick={onNodeClick}
           onNodesDelete={onNodesDelete}
           onNodeDoubleClick={onNodeDoubleClick}
           connectionLineType={ConnectionLineType.SmoothStep}
           fitView
           nodeTypes={nodeTypes}
-          deleteKeyCode={deletablenode ? "Delete": ""}
+          deleteKeyCode={deletablenode ? "Delete" : ""}
         >
           {loading && (
             <Box sx={{ width: "100%" }}>
@@ -521,13 +426,12 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
                 <SaveIcon />
               </Fab>
               <Fab variant="extended" onClick={() => onLayout("TB")}>
-                vertical layout
+                Auto Arrange
                 <NavigationIcon sx={{ mr: 1, transform: "rotate(180deg)" }} />
               </Fab>
               <Fab variant="extended" onClick={() => handleSignOut()}>
                 Sign Out
               </Fab>
-
 
               {/* <Fab variant="extended" onClick={() => onLayout('LR')}>
                   horizontal layout
@@ -541,10 +445,10 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
           <Background gap={40} variant={"dots"} size={0} color="#ccc" />
         </ReactFlow>
       </ReactFlowProvider>
-      {PropertyMenu(handleSideMenu, openSideMenu, node,updateNode, nodeNameList,edges)}
+      {PropertyMenu()}
       <Snackbar
         sx={{
-          marginTop:"60px"
+          marginTop: "60px",
         }}
         open={openSnackbar}
         autoHideDuration={3000}
@@ -566,20 +470,15 @@ const getLayoutedElements = (nodes, edges, direction = "TB") => {
   );
 };
 
-
 // code for alert while closing the tab
 window.addEventListener("beforeunload", (ev) => {
-  console.log("sdjbkjs",ev?.target?.location?.pathname)
-  if(ev?.target?.location?.pathname==="/"){
+  console.log("sdjbkjs", ev?.target?.location?.pathname);
+  if (ev?.target?.location?.pathname === "/") {
     ev.preventDefault();
     return (ev.returnValue = "Are you sure you want to close?");
-  }else{
-    return true
+  } else {
+    return true;
   }
-  
 });
-
-
- 
 
 export default LayoutFlow;

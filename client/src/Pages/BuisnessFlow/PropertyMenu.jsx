@@ -4,7 +4,11 @@ import NewNodeMenu from "./Components/PropertyMenu/NewNodeMenu";
 import BuillingUnitNodeMenu from "./Components/PropertyMenu/BillingUnitNodeMenu";
 import BuisnessUnitMenu from "./Components/PropertyMenu/BuisnessUnitMenu";
 
-const PropertyMenu = (handleSideMenu, openSideMenu, node,  updateNode, nodeNameList, edges ) => {
+import {  useSelector } from "react-redux";
+
+const PropertyMenu = (  ) => {
+ const node = useSelector((state)=>state.flow.node)
+
   let props = {};
 
 
@@ -12,56 +16,52 @@ const PropertyMenu = (handleSideMenu, openSideMenu, node,  updateNode, nodeNameL
   if (node?.type === "defaultBusinessUnit") {
     return (
       <DefaultBuisnessUnitMenu
-        handleSideMenu={handleSideMenu}
-        openSideMenu={openSideMenu}
-        node={node}
-        updateNode={updateNode}
-        nodeNameList={nodeNameList}
-        edges={edges}
+        
+
       />
     );
   } else if (node?.type === "newNode") {
     return (
       <NewNodeMenu
-        handleSideMenu={handleSideMenu}
-        openSideMenu={openSideMenu}
-        node={node}
-        updateNode={updateNode}
-        nodeNameList={nodeNameList}
-        edges={edges}
+        // handleSideMenu={handleSideMenu}
+        // openSideMenu={openSideMenu}
+        // node={node}
+        // updateNode={updateNode}
+        // nodeNameList={nodeNameList}
+        // edges={edges}
       />
     );
   } else if (node?.type === "businessUnit") {
     return (
       <BuisnessUnitMenu
-        handleSideMenu={handleSideMenu}
-        openSideMenu={openSideMenu}
-        node={node}
-        updateNode={updateNode}
-        nodeNameList={nodeNameList}
-        edges={edges}
+        // handleSideMenu={handleSideMenu}
+        // openSideMenu={openSideMenu}
+        // node={node}
+        // updateNode={updateNode}
+        // nodeNameList={nodeNameList}
+        // edges={edges}
       />
     );
   } else if (node?.type === "monitoringUnit") {
     return (
       <MonitoringNodeMenu
-        handleSideMenu={handleSideMenu}
-        openSideMenu={openSideMenu}
-        node={node}
-        updateNode={updateNode}
-        nodeNameList={nodeNameList}
-        edges={edges}
+        // handleSideMenu={handleSideMenu}
+        // openSideMenu={openSideMenu}
+        // node={node}
+        // updateNode={updateNode}
+        // nodeNameList={nodeNameList}
+        // edges={edges}
       />
     );
   } else if (node?.type === "billingUnit") {
     return (
       <BuillingUnitNodeMenu
-        handleSideMenu={handleSideMenu}
-        openSideMenu={openSideMenu}
-        node={node}
-        updateNode={updateNode}
-        nodeNameList={nodeNameList}
-        edges={edges}
+        // handleSideMenu={handleSideMenu}
+        // openSideMenu={openSideMenu}
+        // node={node}
+        // updateNode={updateNode}
+        // nodeNameList={nodeNameList}
+        // edges={edges}
       />
     );
   } else {

@@ -18,6 +18,8 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 
+import {updateNode } from "../../../../redux/slices/flow.slices"
+
 import {
   Autocomplete,
   Box,
@@ -32,18 +34,27 @@ import {
   Typography,
 } from "@mui/material";
 
-export default function TemporaryDrawer({
-  handleSideMenu,
-  openSideMenu,
-  node,
-  updateNode,
-  nodeNameList,
-  edges
-}) {
+import { useDispatch, useSelector } from "react-redux";
+import { setSideMenu } from "../../../../redux/slices/flow.slices";
+
+
+// parant componant 
+
+export default function TemporaryDrawer() {
+
+  const dispatch = useDispatch()
+
+  const openSideMenu = useSelector((state)=> state.flow.openSideMenu)
+  const node = useSelector((state)=> state.flow.node)
+  const edges = useSelector((state)=> state.flow.edges)
+  const nodeNameList = useSelector((state)=> state.flow.nodeNameList)
+
+
   const [state, setState] = React.useState(true);
 
   const toggleDrawer = () => {
-    handleSideMenu(false);
+    
+    dispatch(setSideMenu(false))
   };
 
   const Menu = () => (
@@ -77,7 +88,6 @@ export default function TemporaryDrawer({
         node={node}
         updateNode={updateNode}
         nodeNameList={nodeNameList}
-        edges={edges}
       />
     </Box>
   );
@@ -104,11 +114,14 @@ export default function TemporaryDrawer({
   );
 }
 
-const FormForUpdate = ({ toggleDrawer, node, updateNode, nodeNameList , edges }) => {
+const FormForUpdate = ({ toggleDrawer, nodeNameList  }) => {
   const [selectedBusinessData, setSelectedBusinessData] = React.useState({});
   const [currentLogo, setCurrentLogo] = React.useState(
     selectedBusinessData.icon ? selectedBusinessData.icon : ""
   );
+
+  const node = useSelector((state)=>state.flow.node)
+  const edges = useSelector((state)=>state.flow.edges);
 
   const [values, setValues] = React.useState({ ...node });
   const [isDefault, setIsDefault] = React.useState(false);
@@ -119,6 +132,8 @@ const FormForUpdate = ({ toggleDrawer, node, updateNode, nodeNameList , edges })
   //   const onChangeImageUpload = (imageItem) => {
   //     setCurrentLogo(imageItem[0].dataURL);
   // };
+
+
 
   React.useEffect(()=>{
 
@@ -235,6 +250,7 @@ const FormForUpdate = ({ toggleDrawer, node, updateNode, nodeNameList , edges })
     console.log("parantChange", parantChange)
   } 
 
+  const dispatch = useDispatch()
 
   return (
     <>
@@ -243,61 +259,7 @@ const FormForUpdate = ({ toggleDrawer, node, updateNode, nodeNameList , edges })
           <Grid container spacing={10} py={4} sx={{ overflow: "hidden" }}>
             <Grid item md={12} lg={12}>
               <Card sx={{ padding: "2rem", minHeight: "72vh", height: "110%" }}>
-                {/* <FormControl fullWidth>
-                                        <Stack direction="column" spacing={1} alignItems="baseline" mb={4}>
-                                            <Typography component="h2" variant="h6" mb={3}>
-                                              
-                                            </Typography>
-                                            <ImageUploading maxFileSize={2107637} acceptType={['jpg', 'png', 'jpeg']}
-                                                            maxNumber={1} onChange={onChangeImageUpload}>
-                                                {({onImageUpload, dragProps, errors}) => (
-                                                    <Card className="p_img-upload "
-                                                          onClick={onImageUpload}  {...dragProps}
-                                                          sx={{
-                                                              border: '1px dashed #6C757D',
-                                                              cursor: 'pointer',
-                                                              height: '122px !important',
-                                                              display: 'flex',
-                                                              width: "100%",
-                                                              flexDirection: 'column',
-                                                              alignItems: 'stretch',
-                                                              borderRadius:'10px'
-                                                          }}>
-                                                        <CardContent sx={{
-                                                            display: 'flex',
-                                                            flexDirection: 'column',
-                                                            alignItems: 'center',
-                                                            paddingBottom: 0
-                                                        }}>
-                                                           < CloudUploadOutlinedIcon fontSize='large' />
-                                                          <Stack> Drag your image here or Click to upload </Stack>
-                                                            
-                                                        </CardContent>
-                                                        {errors && (<Stack> {errors.maxNumber && <Alert
-                                                            severity="error"></Alert>}
-                                                            {errors.acceptType && <Alert
-                                                                severity="error"></Alert>}
-                                                            {errors.maxFileSize && <Alert
-                                                                severity="error"></Alert>}
-                                                        </Stack>)
-                                                        }
-                                                    </Card>
-                                                )}
-                                            </ImageUploading>
-                                            {currentLogo && <ImageBox>
-                                                <OverlayBox id="overlayBox"/>
-                                                {<CloseIcon id="closeIcon" sx={{
-                                                    position: "absolute",
-                                                    backgroundColor: "#fff",
-                                                    display: "none",
-                                                    padding: "2px",
-                                                    zIndex: 2,
-                                                    borderRadius: "50%"
-                                                }} color="primary" onClick={() => setCurrentLogo('')}/>}
-                                                <Box py={2} component="img" src={currentLogo} 
-                                                     sx={{width: "80px", height: "80px"}}/></ImageBox>}
-                                        </Stack>
-                                    </FormControl> */}
+        
                 <FormControl fullWidth sx={{ height: "7rem" }}>
                   <Stack direction="column" spacing={1} alignItems="baseline">
                     <Typography component="h2" variant="h6" mb={3}>
@@ -478,7 +440,7 @@ const FormForUpdate = ({ toggleDrawer, node, updateNode, nodeNameList , edges })
                     className="btn-theme"
                     onClick={() => {
                       toggleDrawer();
-                      updateNode(values,isDefault,parantChange);
+                      dispatch(updateNode({node:{...values},parantChange:{...parantChange},isDefault}))
                     }}
                   >
                     Save

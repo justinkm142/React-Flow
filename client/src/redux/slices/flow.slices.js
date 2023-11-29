@@ -9,6 +9,7 @@ const initialState = {
     stack : [],
     openSideMenu:false,
     node:{},
+    nodeNameList:[],
 
 }
 
@@ -63,130 +64,25 @@ export const flowSlice = createSlice({
       
     },
     updateNode:(state,action)=>{
-      console.log(state.nodes)
-      let nodes = [...state.nodes]
-      debugger
-      let {node, isDefault, parantChange } = action.payload
-      let tempNodes = nodes.map((data) => {
-
-        if (data.id === node.id) {
-  
-          if (node.type === "defaultBusinessUnit") {
-            return node;
-          }
-  
-          if (node.data.features.businessUnit === true) {
-            return { ...node, type: "businessUnit" };
-          }
-  
-          if (node.data.features.billingUnit === true) {
-            return { ...node, type: "billingUnit" };
-          }
-          if (node.data.features.monitoringUnit === true) {
-            return { ...node, type: "monitoringUnit" };
-          }
-          if (
-            node.data.features.monitoringUnit === false &&
-            node.data.features.billingUnit === false &&
-            node.data.features.businessUnit === false
-          ) {
-            return { ...node, type: "newNode" };
-          }
-          return node;
-        } else {
-          return data;
-        }
-      });
-
-    if(isDefault){
-      flowSlice.caseReducers.changeDefaultUnit(state, {node,tempNodes});
-    }else if(parantChange?.status===true){
       
-      flowSlice.caseReducers.changeParantNode(state, {parantChange:{...parantChange},tempNodes, edges:state.edges });
-    }
-    else{
-      state.nodes = [...tempNodes]
-    }
-
+      let node = action.payload.node;
+      let isDefault = action.payload.isDefault;
+      let parantChange = action.payload.parantChange;
+      let nodesOld =[...state.nodes]
+      let edgesOld = [...state.edges]
+      
+     let {nodes, edges} = updateNodeFunction(node,isDefault,parantChange,nodesOld ,edgesOld)
+      if(nodes){
+        state.nodes = [...nodes]
+      }
+      if(edges){
+        state.edges = [...edges]
+      }
 
     },
-    changeDefaultUnit:(state,action)=>{
+   setNodeNameList:(state,action)=>{
+      state.nodeNameList = [...action.payload]  
 
-      let newDefaultNode =action.payload.node;
-      let Nodes = action.payload.tempNodes;
-      let nodes = state.nodes
-      let node = state.node
-      let edges =state.edges
-
-
-      let oldDefaultNode = nodes.filter((data)=>{
-        if (data.type==="defaultBusinessUnit"){
-          return data
-        }
-      })
-      let tempNodes = Nodes.map((data)=>{
-        
-        if(data.id===newDefaultNode.id){
-          return {...data, type:"defaultBusinessUnit"}
-        }
-        if(data.id===oldDefaultNode[0].id){
-          return {...data, type:"businessUnit"}
-        }
-        
-        return data
-      })
-  
-      let set =0
-      let newEdges = edges.map((data)=>{
-        if(data.source==="stratNodeId"){
-          set++
-          return {...data, source: node.id} 
-        }
-        if(data.target===node.id){
-          set++
-          return {...data, source: "stratNodeId"} 
-        }
-        return data
-      })
-  
-      if(set<2){
-        newEdges.push({id:`${newDefaultNode.id}-2`, source:"stratNodeId", target:newDefaultNode.id, animated:true})
-      }
-  
-  
-      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(tempNodes, newEdges, "TB");
-  
-        state.nodes = [...layoutedNodes];
-        state.edges = [...layoutedEdges];
-
-    },
-
-
-    changeParantNode:(state,action)=>{
-      let parantChange = {...action.payload.parantChange};
-      let tempNodes = action.payload.tempNodes;
-      let edges = action.payload.edges
-
-      let newEdges = []
-      if(parantChange.oldParantId===""){
-  
-        newEdges = [...edges, {animated:true, hidden:false, id:`${parantChange.nodeId}-1`, source:parantChange.newParantId, target:parantChange.nodeId}]
-  
-      }else{
-  
-        newEdges = edges.map((data)=>{
-          if(data.target===parantChange.nodeId){
-            return ({...data, source:parantChange.newParantId})
-          }else{
-            return data
-          }
-        })
-      }
-  
-      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(tempNodes, newEdges, "TB");
-  
-      state.edges = [...layoutedEdges]
-      state.nodes = [...layoutedNodes]
     },
   
   },
@@ -207,6 +103,7 @@ export const {
   setSideMenu,
   setNode,
   updateNode,
+  setNodeNameList,
 } = flowSlice.actions
 export default flowSlice.reducer
 
@@ -215,40 +112,200 @@ export default flowSlice.reducer
 
 
 
-const nodeWidth = 200;
-const nodeHeight = 120;
+// function for updating nodes
+const updateNodeFunction = (node, isDefault, parantChange, nodes, edges) => {
+   
+  let tempNodes = nodes.map((data) => {
 
-const dagreGraph = new dagre.graphlib.Graph();
-dagreGraph.setDefaultEdgeLabel(() => ({}));
+    if (data.id === node.id) {
 
-const getLayoutedElements = (nodes, edges, direction = "TB") => {
-  const isHorizontal = direction === "LR";
-  dagreGraph.setGraph({ rankdir: "TB" });
+      if (node.type === "defaultBusinessUnit") {
+        return node;
+      }
 
-  nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+      if (node.data.features.businessUnit === true) {
+        return { ...node, type: "businessUnit" };
+      }
+
+      if (node.data.features.billingUnit === true) {
+        return { ...node, type: "billingUnit" };
+      }
+      if (node.data.features.monitoringUnit === true) {
+        return { ...node, type: "monitoringUnit" };
+      }
+      if (
+        node.data.features.monitoringUnit === false &&
+        node.data.features.billingUnit === false &&
+        node.data.features.businessUnit === false
+      ) {
+        return { ...node, type: "newNode" };
+      }
+      return node;
+    } else {
+      return data;
+    }
   });
 
-  edges.forEach((edge) => {
-    dagreGraph.setEdge(edge.source, edge.target);
-  });
+  if(isDefault){
+    return changeDefaultUnit(node, tempNodes, nodes, edges)
+  }else if(parantChange.status===true){
+    return changeParant(parantChange,tempNodes,nodes, edges)
+  }
+  else{
+    return {nodes:[...tempNodes]}
+  }
 
-  dagre.layout(dagreGraph);
+};
 
-  nodes.forEach((node) => {
-    const nodeWithPosition = dagreGraph.node(node.id);
-    node.targetPosition = isHorizontal ? "left" : "top";
-    node.sourcePosition = isHorizontal ? "right" : "bottom";
+// function for make any node into Defaultnode
+const changeDefaultUnit = (node, Nodes, nodes, edges)=>{
+  let newDefaultNode = node
+  let oldDefaultNode = nodes.filter((data)=>{
+    if (data.type==="defaultBusinessUnit"){
+      return data
+    }
+  })
+  let tempNodes = Nodes.map((data)=>{
+    
+    if(data.id===newDefaultNode.id){
+      return {...data, type:"defaultBusinessUnit"}
+    }
+    if(data.id===oldDefaultNode[0].id){
+      return {...data, type:"businessUnit"}
+    }
+    
+    return data
+  })
 
-    // We are shifting the dagre node position (anchor=center center) to the top left
-    // so it matches the React Flow node anchor point (top left).
-    node.position = {
-      x: nodeWithPosition.x - nodeWidth / 2,
-      y: nodeWithPosition.y - nodeHeight / 2,
+  let set =0
+  let newEdges = edges.map((data)=>{
+    if(data.source==="stratNodeId"){
+      set++
+      return {...data, source: node.id} 
+    }
+    if(data.target===node.id){
+      set++
+      return {...data, source: "stratNodeId"} 
+    }
+    return data
+  })
+
+  if(set<2){
+    newEdges.push({id:`${newDefaultNode.id}-2`, source:"stratNodeId", target:newDefaultNode.id, animated:true})
+  }
+
+
+    const nodeWidth = 200;
+    const nodeHeight = 120;
+    
+    const dagreGraph = new dagre.graphlib.Graph();
+    dagreGraph.setDefaultEdgeLabel(() => ({}));
+    
+    const getLayoutedElements = (nodes, edges, direction = "TB") => {
+      const isHorizontal = direction === "LR";
+      dagreGraph.setGraph({ rankdir: "TB" });
+    
+      nodes.forEach((node) => {
+        dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+      });
+    
+      edges.forEach((edge) => {
+        dagreGraph.setEdge(edge.source, edge.target);
+      });
+    
+      dagre.layout(dagreGraph);
+    
+      nodes.forEach((node) => {
+        const nodeWithPosition = dagreGraph.node(node.id);
+        node.targetPosition = isHorizontal ? "left" : "top";
+        node.sourcePosition = isHorizontal ? "right" : "bottom";
+    
+        // We are shifting the dagre node position (anchor=center center) to the top left
+        // so it matches the React Flow node anchor point (top left).
+        node.position = {
+          x: nodeWithPosition.x - nodeWidth / 2,
+          y: nodeWithPosition.y - nodeHeight / 2,
+        };
+    
+        return node;
+      });
+    
+      return { nodes, edges };
     };
 
-    return node;
-  });
 
-  return { nodes, edges };
-};
+
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(tempNodes, newEdges, "TB"); 
+    return {nodes:[...layoutedNodes] , edges: [...layoutedEdges]}
+
+
+}
+
+// fucntion for change parant of the node 
+const changeParant = (parantChange,tempNodes,nodes, edges)=>{
+ 
+
+  let newEdges = []
+  if(parantChange.oldParantId===""){
+
+    newEdges = [...edges, {animated:true, hidden:false, id:`${parantChange.nodeId}-1`, source:parantChange.newParantId, target:parantChange.nodeId}]
+
+  }else{
+
+    newEdges = edges.map((data)=>{
+      if(data.target===parantChange.nodeId){
+        return ({...data, source:parantChange.newParantId})
+      }else{
+        return data
+      }
+    })
+  }
+
+  const nodeWidth = 200;
+  const nodeHeight = 120;
+  
+  const dagreGraph = new dagre.graphlib.Graph();
+  dagreGraph.setDefaultEdgeLabel(() => ({}));
+  
+  const getLayoutedElements = (nodes, edges, direction = "TB") => {
+    const isHorizontal = direction === "LR";
+    dagreGraph.setGraph({ rankdir: "TB" });
+  
+    nodes.forEach((node) => {
+      dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+    });
+  
+    edges.forEach((edge) => {
+      dagreGraph.setEdge(edge.source, edge.target);
+    });
+  
+    dagre.layout(dagreGraph);
+  
+    nodes.forEach((node) => {
+      const nodeWithPosition = dagreGraph.node(node.id);
+      node.targetPosition = isHorizontal ? "left" : "top";
+      node.sourcePosition = isHorizontal ? "right" : "bottom";
+  
+      // We are shifting the dagre node position (anchor=center center) to the top left
+      // so it matches the React Flow node anchor point (top left).
+      node.position = {
+        x: nodeWithPosition.x - nodeWidth / 2,
+        y: nodeWithPosition.y - nodeHeight / 2,
+      };
+  
+      return node;
+    });
+  
+    return { nodes, edges };
+  };
+
+  const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(tempNodes, newEdges, "TB");
+
+  return {nodes:[...layoutedNodes] , edges: [...layoutedEdges]}
+
+}
+
+
+
+
+
