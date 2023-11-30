@@ -12,7 +12,7 @@ import ReactFlow, {
   ReactFlowProvider,
   getIncomers,
   getOutgoers,
-  getConnectedEdges,
+  useReactFlow,
 } from "reactflow";
 import dagre from "dagre";
 import axios from "axios";
@@ -26,7 +26,7 @@ import {
   Box,
   Snackbar,
   LinearProgress,
-  Typography
+  Typography,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import NavigationIcon from "@mui/icons-material/Navigation";
@@ -75,7 +75,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 let count = 0;
 
 // parant component
-const LayoutFlow = () => {
+const BillingFlow = () => {
   
   const [loadPage, setloadPage] = useState(true);
 
@@ -260,15 +260,19 @@ const LayoutFlow = () => {
     try {
       let serverRespose = await axios({
         method: "get",
-        url: "http://localhost:4001/",
+        url: "http://localhost:4001/billingUnitFlow",
         params: { orgId: orgId },
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      dispatch(setNodes(serverRespose.data.node));
-      dispatch(setEdges(serverRespose.data.edges));
+
+
+      const { nodes: layoutedNodes, edges: layoutedEdges } =getLayoutedElements([...serverRespose.data.node],[...serverRespose.data.edges],"TB");
+
+      dispatch(setNodes(layoutedNodes));
+      dispatch(setEdges(layoutedEdges));
       setloadPage(!loadPage);
     } catch (error) {
       console.log(error);
@@ -403,6 +407,8 @@ const LayoutFlow = () => {
     [nodes, edges]
   );
 
+  
+
   return (
     <div
       style={{
@@ -411,11 +417,11 @@ const LayoutFlow = () => {
         backgroundColor: "rgb(242, 242, 242)",
       }}
     >
-      <nav style={{width:'full' , height:'50px', backgroundColor:"#ccc"}}>
+         <nav style={{width:'full' , height:'50px', backgroundColor:"#ccc"}}>
             <Typography variant="h4" sx={{textDecoration:"underline", textAlign:"center"}}>
-              Organization View
+            Billing Arrangement View
             </Typography>
-      </nav>
+        </nav>
       <ReactFlowProvider>
         <ReactFlow
           nodes={nodes}
@@ -428,6 +434,7 @@ const LayoutFlow = () => {
           onNodeDoubleClick={onNodeDoubleClick}
           connectionLineType={ConnectionLineType.SmoothStep}
           fitView={true}
+
           nodeTypes={nodeTypes}
           deleteKeyCode={deletablenode ? "Delete" : ""}
         >
@@ -471,21 +478,21 @@ const LayoutFlow = () => {
             </Box>
           </Panel>
           <Panel position="top-left">
-            <a href="/billingUnits">
-
-              <Fab variant="extended" onClick={() =>{
-              //navigate("/billingUnits")
-              }
-              }>
-                Billig Units View
+            <a href="/">
+            <Fab variant="extended" onClick={() =>{ 
+              // navigate("/")
+            }}>
+                Organization View
               </Fab>
 
             </a>
           </Panel>
-          <Panel position="top-center">
-           
+          {/* <Panel position="top-center">
+            <Typography variant="h4" sx={{textDecoration:"underline"}}>
+              Billing Arrangement View
+            </Typography>
 
-          </Panel>
+          </Panel> */}
           <Controls />
           {/* <MiniMap /> */}
           <Background gap={40} variant={"dots"} size={0} color="#ccc" />
@@ -527,4 +534,4 @@ const LayoutFlow = () => {
 //   }
 // });
 
-export default LayoutFlow;
+export default BillingFlow;
