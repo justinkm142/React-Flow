@@ -35,7 +35,7 @@ import MuiAlert from "@mui/material/Alert";
 // component import
 import { nodeTypes } from "./Components/Cards/Index";
 import TemporaryDrawer from "./Components/PropertyMenu/DefaultBuisnessUnitMenu";
-import PropertyMenu from "./PropertyMenu";
+import PropertyMenu from "./Components/PropertyMenu";
 import "reactflow/dist/style.css";
 import { useNavigate } from "react-router-dom";
 
@@ -64,7 +64,7 @@ const deletedNodes = [];
 const token =
   "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImVWZVF3eV9sUW5Wdk9MZTZrTmJzcyJ9.eyJlbWFpbCI6ImRldmVsb3BtZW50LnRlc3RAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vZGV2LTFzcG9jLnVzLmF1dGgwLmNvbS8iLCJhdWQiOiJTbzNvNTl2VVh0OHJmc0U1MzhkMnAwOFQzMW5jOW5EZyIsImlhdCI6MTY5OTI1MzkzOCwiZXhwIjoxNjk5Mjg5OTM4LCJzdWIiOiJhdXRoMHw2NTJmYzA3NGI0NGFjODQxZGQ5ZWFjNjkiLCJhdF9oYXNoIjoiaktNSWRjejZMdnhKTkRLZUk1M3ppdyIsIm5vbmNlIjoiOVBmLjhCZnFkeEthU19hVXpuQXBrcTg3UHQ3SkxRNjkifQ.KqrvsbPHl3v5EPZDqHii7it-omozEzSYtRL84LByGURHDtnXJy7U3Z0lbO-M8j9izbYwqDxKeyhHvxd7QJAhgtSShKjvxRF5O_1Wk0aX-I4br2IJvhuXwxuJSzBOvaD81SK_oPRZUZO7gVMFBFz_FiNNTGF89rn4GT32cxUnshVrbrzRYHn6AEupDAf4z6T-X1fUUF8tN3S9Sln5YmDwBMRjCH5dgnkb6j_cFbgma9x8k-esz0CdS4vsmfNY_3566R2vTMNPKetRxzU5u2oMwG3NIzCfWKWEX5NTs4c5gTg7S0krYP4XvlF7AUt0Y30PT9cRi2H0NBpjSSf77x_g1w";
 
-const nodeWidth = 200;
+const nodeWidth = 220;
 const nodeHeight = 120;
 
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -75,6 +75,7 @@ let count = 0;
 
 // parant component
 const LayoutFlow = () => {
+  
   const [loadPage, setloadPage] = useState(true);
 
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
@@ -134,6 +135,7 @@ const LayoutFlow = () => {
 
   // useEffect for navigate to login page if not logedin
   React.useEffect(() => {
+ 
     const userData = JSON.parse(localStorage.getItem("userData"));
     if (userData) {
       getNodesFromServer(userData.accountData._id);
@@ -141,6 +143,7 @@ const LayoutFlow = () => {
       navigate("/login");
     }
   }, []);
+
 
   React.useEffect(() => {
     let namelist = [];
@@ -153,6 +156,14 @@ const LayoutFlow = () => {
   // function - open side menu  on node single click
   let timeoutForMouseClick;
   const onNodeClick = (e, node) => {
+    console.log("target id2", e.target.id);
+
+    if(e.target.id === "id-addNodeButton") {
+    
+      createChildtoParant(node)
+      return true;
+    }
+
     count++;
     window.clearTimeout(timeoutForMouseClick);
     timeoutForMouseClick = setTimeout(() => {
@@ -180,54 +191,67 @@ const LayoutFlow = () => {
   const onNodeDoubleClick = async (e, node) => {
     window.clearTimeout(timeoutForMouseClick);
     console.log("double", node);
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    try {
-      let serverRespose = await axios({
-        method: "post",
-        url: "http://localhost:4001/",
-        data: {
-          name: "New BU",
-          type: "newNode",
-          parent_id: node.id,
-          orgId: userData.accountData._id,
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      // setNodes((nds) => [...nds, serverRespose.data.node]);
-      // setEdges((eds) => addEdge({_id:"dfjbjkdfbk", target:serverRespose.data.node.id, source: node.id , animated: true }, eds));
-
-      let nodesCopy = nodes.map((data) => {
-        return { ...data };
-      });
-      let edgesCopy = edges.map((data) => {
-        return { ...data };
-      });
-
-      const { nodes: layoutedNodes, edges: layoutedEdges } =
-        getLayoutedElements(
-          [...nodesCopy, serverRespose.data.node],
-          [
-            ...edgesCopy,
-            {
-              id: `${serverRespose.data.node.id}-2`,
-              target: serverRespose.data.node.id,
-              source: node.id,
-              animated: true,
-              hidden: false,
-            },
-          ],
-          "TB"
-        );
-
-      dispatch(setEdges([...layoutedEdges]));
-      dispatch(setNodes([...layoutedNodes]));
-    } catch (error) {
-      console.log(error);
-    }
+    createChildtoParant(node)
   };
+
+
+  // axios - add child node when clicking the node + button 
+
+  const createChildtoParant = async (node)=>{
+    try {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+        let serverRespose = await axios({
+          method: "post",
+          url: "http://localhost:4001/",
+          data: {
+            name: "New BU",
+            type: "newNode",
+            parent_id: node.id,
+            orgId: userData.accountData._id,
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        // setNodes((nds) => [...nds, serverRespose.data.node]);
+        // setEdges((eds) => addEdge({_id:"dfjbjkdfbk", target:serverRespose.data.node.id, source: node.id , animated: true }, eds));
+  
+        let nodesCopy = nodes.map((data) => {
+          return { ...data };
+        });
+        let edgesCopy = edges.map((data) => {
+          return { ...data };
+        });
+  
+        const { nodes: layoutedNodes, edges: layoutedEdges } =
+          getLayoutedElements(
+            [...nodesCopy, serverRespose.data.node],
+            [
+              ...edgesCopy,
+              {
+                id: `${serverRespose.data.node.id}-2`,
+                target: serverRespose.data.node.id,
+                source: node.id,
+                animated: true,
+                hidden: false,
+              },
+            ],
+            "TB"
+          );
+  
+        dispatch(setEdges([...layoutedEdges]));
+        dispatch(setNodes([...layoutedNodes]));
+
+
+
+
+
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
 
   // axios -  for  get all  node and edges from server

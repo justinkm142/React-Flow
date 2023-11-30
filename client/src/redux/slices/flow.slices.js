@@ -10,7 +10,6 @@ const initialState = {
     openSideMenu:false,
     node:{},
     nodeNameList:[],
-
 }
 
 export const flowSlice = createSlice({
@@ -19,21 +18,25 @@ export const flowSlice = createSlice({
   reducers: {
     setNodes: (state,action) => {
       state.nodes= [...action.payload]
-      
+      state.stack.push({nodes: state.nodes, edges:state.edges})
     },
     setEdges: (state,action) => {
       state.edges= [...action.payload]
+      state.stack.push({nodes: state.nodes, edges:state.edges})
     },
+
     setSingleNode: (state,action) => {
       state.nodes.push(action.payload)
-      
+      state.stack.push({nodes: state.nodes, edges:state.edges}) 
     },
     setSingleEdge: (state,action) => {
       state.edges.push(action.payload)
+      state.stack.push({nodes: state.nodes, edges:state.edges})
     },
     
     onNodesChange: (state,action) => {
       state.nodes = [...applyNodeChanges(action.payload, state.nodes)]
+      
     },
 
     onEdgesChange: (state,action) => {
@@ -53,6 +56,7 @@ export const flowSlice = createSlice({
     },
     onConnect: (state, action) => {
       state.edges.push({...action.payload, animated: true})
+      state.stack.push({nodes: state.nodes, edges:state.edges})
     },
     setSideMenu:(state,action) => {
       state.openSideMenu=action.payload
@@ -106,6 +110,11 @@ export const {
   setNodeNameList,
 } = flowSlice.actions
 export default flowSlice.reducer
+
+
+
+
+
 
 
 
@@ -195,7 +204,7 @@ const changeDefaultUnit = (node, Nodes, nodes, edges)=>{
   }
 
 
-    const nodeWidth = 200;
+    const nodeWidth = 220;
     const nodeHeight = 120;
     
     const dagreGraph = new dagre.graphlib.Graph();

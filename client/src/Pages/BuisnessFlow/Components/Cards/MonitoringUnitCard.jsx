@@ -6,15 +6,24 @@ import { useRef } from "react";
 import TroubleshootOutlinedIcon from '@mui/icons-material/TroubleshootOutlined';
 import ReceiptOutlinedIcon from '@mui/icons-material/ReceiptOutlined';
 import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
-
+import AddIcon from '@mui/icons-material/Add';
 
 export function MonitoringUnit(props) {
   const handleConnect = (params) => {};
 
   return (
-    <Card sx={{ width:"200px", height:"120px" }}>
+    <Card sx={{ width:"220px", height:"120px" }}>
       <Handle type="target" position={Position.Top} onConnect={handleConnect} />
       <CardContent sx={{ backgroundColor: "", padding: "0px" }}>
+      <Box
+        sx={{
+          display: "flex",
+          width: "full",
+          backgroundColor: "rgb(254 235 164)",
+          height: "30px",
+          marginBottom: "20px",
+        }}
+        >
         <Box
           sx={{
             marginBottom: "20px",
@@ -24,6 +33,7 @@ export function MonitoringUnit(props) {
             justifyContent: "center",
             alignItems: "center",
             height:"30px",
+            width: "90%"
           }}
         >
 
@@ -37,6 +47,52 @@ export function MonitoringUnit(props) {
           Monitoring Unit 
           </Typography>
 
+        </Box>
+
+        <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              position: "relative",
+              width: "25px",
+              height: "25px",
+              transition: "transform 0.2s",
+              marginRight:"10px",
+              marginY:"auto",
+              ":hover": {
+                transform: "scale(1.3)", // Increase the scale on hover
+              },
+              cursor: "pointer",
+            }}
+          >
+            <AddIcon
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                color: "#075985", // Change the icon color as needed
+                zIndex: 1, // Adjust the z-index to control the stacking order
+                maskImage:
+                  "radial-gradient(circle, transparent 100%, black 100%)", // Adjust the mask gradient as needed
+              }}
+            />
+            <div
+              id="id-addNodeButton"
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: "rgba(0, 0, 0, 0.0)", // Change the color and opacity as needed
+                zIndex: 2, // Adjust the z-index to control the stacking order
+              }}
+            ></div>
+          </Box>
+       
 
         </Box>
         <Box sx={{ textAlign: "center" }}>{props.data.label}</Box>
