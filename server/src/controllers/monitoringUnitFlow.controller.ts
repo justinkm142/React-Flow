@@ -1,14 +1,14 @@
 import express from "express";
 
 
-import BillingUnitFlowServices from "../services/billingUnitFlow.services";
+import MonitoringUnitFlowServices from "../services/monitoringUnitFlow.services";
 
 import { RequestWithNode, Node } from "../interfaces/node.interface";
 
-class BusinessFlowController {
-  public flowServices = new BillingUnitFlowServices();
+class MonitoringFlowController {
+  public flowServices = new MonitoringUnitFlowServices();
 
-  public getBillingUnitFlow = async (
+  public getMonitoringUnitFlow = async (
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
@@ -16,7 +16,7 @@ class BusinessFlowController {
     try {
       const orgId= req.query.orgId
 
-      const getAllNode = await this.flowServices.findAllBillingUnit(orgId);
+      const getAllNode = await this.flowServices.findAllMonitoringUnit(orgId);
 
       const node: any = [];
       const edges: any = [];
@@ -30,7 +30,7 @@ class BusinessFlowController {
             hidden:false
           });
         
-        } else if (data.parentBillingUnit_id === "") {
+        } else if (data.parentMonitoringUnit_id === "") {
           edges.push({
             id: `${data._id}_1`,
             source: null,
@@ -43,7 +43,7 @@ class BusinessFlowController {
         } else {
           edges.push({
             id: `${data._id}_1`,
-            source: data.parentBillingUnit_id,
+            source: data.parentMonitoringUnit_id,
             target: data._id,
             animated: true,
             hidden:false
@@ -70,4 +70,4 @@ class BusinessFlowController {
 
 }
 
-export default BusinessFlowController;
+export default MonitoringFlowController;

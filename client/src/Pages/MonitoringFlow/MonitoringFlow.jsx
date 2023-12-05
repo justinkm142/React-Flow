@@ -12,7 +12,7 @@ import ReactFlow, {
   ReactFlowProvider,
   getIncomers,
   getOutgoers,
-  getConnectedEdges,
+  useReactFlow,
 } from "reactflow";
 import dagre from "dagre";
 import axios from "axios";
@@ -26,8 +26,8 @@ import {
   Box,
   Snackbar,
   LinearProgress,
+  Stack,
   Typography,
-  Stack
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import NavigationIcon from "@mui/icons-material/Navigation";
@@ -60,7 +60,7 @@ import {
   setNodeNameList,
 } from "../../redux/slices/flow.slices";
 
-import Graph, {traverseToRoot} from "./Logic/Graph";
+import Graph from "./Logic/graph";
 
 // initialize values
 
@@ -78,7 +78,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 let count = 0;
 
 // parant component
-const LayoutFlow = () => {
+const BillingFlow = () => {
   
   const [loadPage, setloadPage] = useState(true);
 
@@ -107,7 +107,7 @@ const LayoutFlow = () => {
 
   const getLayoutedElements = (nodes, edges, direction = "TB") => {
     const isHorizontal = direction === "LR";
-    dagreGraph.setGraph({ rankdir: "TB" });
+    dagreGraph.setGraph({ rankdir: direction });
 
     nodes.forEach((node) => {
       dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
@@ -200,33 +200,8 @@ const LayoutFlow = () => {
 
 
   // axios - add child node when clicking the node + button 
-
   const createChildtoParant = async (node)=>{
     try {
-      let tempGraph = new Graph();
-      let parentBillingUnit_id="";
-      let parentMonitoringUnit_id="";
-
-      nodes.forEach((data) => {
-        tempGraph.addNode(data);
-      })
-      edges.forEach((data) => {
-        tempGraph.addEdge(data.source, data.target);
-      })
-
-      const nodeToRootPath = traverseToRoot(tempGraph, node.id);
-      console.log("Path from node to root:", nodeToRootPath);
-
-      nodeToRootPath.forEach((data) => {
-        if (data?.data?.features?.billingUnit===true){
-          parentBillingUnit_id=data.id
-        }
-        if (data?.data?.features?.monitoringUnit===true){
-          parentMonitoringUnit_id = data.id
-        }
-      })
-
-
       const userData = JSON.parse(localStorage.getItem("userData"));
         let serverRespose = await axios({
           method: "post",
@@ -234,9 +209,7 @@ const LayoutFlow = () => {
           data: {
             name: "New BU",
             type: "newNode",
-            parentBusinessUnit_id: node.id,
-            parentBillingUnit_id:parentBillingUnit_id,
-            parentMonitoringUnit_id:parentMonitoringUnit_id,
+            parent_id: node.id,
             orgId: userData.accountData._id,
           },
           headers: {
@@ -289,15 +262,19 @@ const LayoutFlow = () => {
     try {
       let serverRespose = await axios({
         method: "get",
-        url: "http://localhost:4001/",
+        url: "http://localhost:4001/monitoringUnitFlow",
         params: { orgId: orgId },
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      dispatch(setNodes(serverRespose.data.node));
-      dispatch(setEdges(serverRespose.data.edges));
+
+
+      const { nodes: layoutedNodes, edges: layoutedEdges } =getLayoutedElements([...serverRespose.data.node],[...serverRespose.data.edges],"TB");
+
+      dispatch(setNodes(layoutedNodes));
+      dispatch(setEdges(layoutedEdges));
       setloadPage(!loadPage);
     } catch (error) {
       console.log(error);
@@ -314,7 +291,7 @@ const LayoutFlow = () => {
         data: {
           name: "New BU",
           type: "newNode",
-          parentBusinessUnit_id: "",
+          parent_id: "",
           orgId: userData.accountData._id,
         },
         headers: {
@@ -388,8 +365,6 @@ const LayoutFlow = () => {
       }
     } catch (error) {
       console.log(error);
-      setSnakBarType("error");
-      setSnackBarMessage("internal server error, please try later");
       setOpenSnackbar(true);
     } finally {
       setLoading(false);
@@ -444,11 +419,11 @@ const LayoutFlow = () => {
         backgroundColor: "rgb(242, 242, 242)",
       }}
     >
-      <nav style={{width:'full' , height:'50px', backgroundColor:"#ccc"}}>
+         <nav style={{width:'full' , height:'50px', backgroundColor:"#ccc"}}>
             <Typography variant="h4" sx={{textDecoration:"underline", textAlign:"center"}}>
-              Organization View
+            Monitoring Arrangement View
             </Typography>
-      </nav>
+        </nav>
       <ReactFlowProvider>
         <ReactFlow
           nodes={nodes}
@@ -461,6 +436,7 @@ const LayoutFlow = () => {
           onNodeDoubleClick={onNodeDoubleClick}
           connectionLineType={ConnectionLineType.SmoothStep}
           fitView={true}
+
           nodeTypes={nodeTypes}
           deleteKeyCode={deletablenode ? "Delete" : ""}
         >
@@ -480,14 +456,14 @@ const LayoutFlow = () => {
                 }}
               >
                 <AddIcon />
-              </Fab> */}
+              </Fab>
               <Fab
                 color="secondary"
                 aria-label="edit"
                 onClick={() => saveFlowInServer(nodes, edges)}
               >
                 <SaveIcon />
-              </Fab>
+              </Fab> */}
               <Fab variant="extended" onClick={() => onLayout("TB")}>
                 Auto Arrange
                 <NavigationIcon sx={{ mr: 1, transform: "rotate(180deg)" }} />
@@ -504,39 +480,40 @@ const LayoutFlow = () => {
             </Box>
           </Panel>
           <Panel position="top-left">
-
           <Stack spacing={2}>
 
-            <a href="/">
-              <Fab variant="extended" onClick={() =>{
-              //navigate("/billingUnits")
-              }}>
-                Organizaion View
-              </Fab>
-            </a>
-              <a href="/billingUnits">
-              <Fab variant="extended" onClick={() =>{
-              //navigate("/billingUnits")
-              }}>
-                Billig Units View
-              </Fab>
-            </a>
-             
-            <a href="/monitoringUnits">
-              <Fab variant="extended" onClick={() =>{
-              //navigate("/billingUnits")
-              }}>
-                Monitoring Units View
-              </Fab>
-            </a>
-
+              <a href="/">
+                <Fab variant="extended" onClick={() =>{
+                //navigate("/billingUnits")
+                }}>
+                  Organizaion View
+                </Fab>
+              </a>
+                <a href="/billingUnits">
+                <Fab variant="extended" onClick={() =>{
+                //navigate("/billingUnits")
+                }}>
+                  Billig Units View
+                </Fab>
+              </a>
               
-            </Stack>
-          </Panel>
-          <Panel position="top-center">
-           
+              <a href="/monitoringUnits">
+                <Fab variant="extended" onClick={() =>{
+                //navigate("/billingUnits")
+                }}>
+                  Monitoring Units View
+                </Fab>
+              </a>
 
+                
+              </Stack>
           </Panel>
+          {/* <Panel position="top-center">
+            <Typography variant="h4" sx={{textDecoration:"underline"}}>
+              Billing Arrangement View
+            </Typography>
+
+          </Panel> */}
           <Controls style={{marginBottom:"100PX"}} />
           {/* <MiniMap /> */}
           <Background gap={40} variant={"dots"} size={0} color="#ccc" />
@@ -578,4 +555,4 @@ const LayoutFlow = () => {
 //   }
 // });
 
-export default LayoutFlow;
+export default BillingFlow;

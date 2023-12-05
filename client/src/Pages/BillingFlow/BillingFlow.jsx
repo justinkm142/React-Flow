@@ -27,6 +27,7 @@ import {
   Snackbar,
   LinearProgress,
   Typography,
+  Stack
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import NavigationIcon from "@mui/icons-material/Navigation";
@@ -58,6 +59,8 @@ import {
   setNode,
   setNodeNameList,
 } from "../../redux/slices/flow.slices";
+
+import Graph from "./Logic/graph";
 
 // initialize values
 
@@ -104,7 +107,7 @@ const BillingFlow = () => {
 
   const getLayoutedElements = (nodes, edges, direction = "TB") => {
     const isHorizontal = direction === "LR";
-    dagreGraph.setGraph({ rankdir: "TB" });
+    dagreGraph.setGraph({ rankdir: direction });
 
     nodes.forEach((node) => {
       dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
@@ -197,7 +200,6 @@ const BillingFlow = () => {
 
 
   // axios - add child node when clicking the node + button 
-
   const createChildtoParant = async (node)=>{
     try {
       const userData = JSON.parse(localStorage.getItem("userData"));
@@ -446,7 +448,7 @@ const BillingFlow = () => {
 
           <Panel position="top-right">
             <Box sx={{ "& > :not(style)": { m: 1 } }}>
-              <Fab
+              {/* <Fab
                 color="primary"
                 aria-label="add"
                 onClick={() => {
@@ -461,7 +463,7 @@ const BillingFlow = () => {
                 onClick={() => saveFlowInServer(nodes, edges)}
               >
                 <SaveIcon />
-              </Fab>
+              </Fab> */}
               <Fab variant="extended" onClick={() => onLayout("TB")}>
                 Auto Arrange
                 <NavigationIcon sx={{ mr: 1, transform: "rotate(180deg)" }} />
@@ -478,14 +480,32 @@ const BillingFlow = () => {
             </Box>
           </Panel>
           <Panel position="top-left">
-            <a href="/">
-            <Fab variant="extended" onClick={() =>{ 
-              // navigate("/")
-            }}>
-                Organization View
-              </Fab>
+          <Stack spacing={2}>
+              <a href="/">
+                <Fab variant="extended" onClick={() =>{
+                //navigate("/billingUnits")
+                }}>
+                  Organizaion View
+                </Fab>
+              </a>
+                <a href="/billingUnits">
+                <Fab variant="extended" onClick={() =>{
+                //navigate("/billingUnits")
+                }}>
+                  Billig Units View
+                </Fab>
+              </a>
+              
+              <a href="/monitoringUnits">
+                <Fab variant="extended" onClick={() =>{
+                //navigate("/billingUnits")
+                }}>
+                  Monitoring Units View
+                </Fab>
+              </a>
 
-            </a>
+                
+              </Stack>
           </Panel>
           {/* <Panel position="top-center">
             <Typography variant="h4" sx={{textDecoration:"underline"}}>
@@ -493,7 +513,7 @@ const BillingFlow = () => {
             </Typography>
 
           </Panel> */}
-          <Controls />
+          <Controls style={{marginBottom:"100PX"}} />
           {/* <MiniMap /> */}
           <Background gap={40} variant={"dots"} size={0} color="#ccc" />
         </ReactFlow>

@@ -45,11 +45,16 @@ class FlowController {
         } else {
           edges.push({
             id: `${data._id}_1`,
-            source: data.parent_id,
+            source: data.parentBusinessUnit_id,
             target: data._id,
             animated: true,
-            hidden:false
+            hidden:false,
+            style: {
+              strokeWidth: 2,
+              stroke: '#FF0072',
+            },
           });
+          
         }
         node.push({
           id: data._id,
@@ -139,6 +144,19 @@ class FlowController {
       res.status(500).json({ error: "Internal Server Error" });
     }
   };
+
+  // meyhod for convert nodes and edges to graph
+
+
+
 }
 
+
+
 export default FlowController;
+
+
+
+
+
+

@@ -5,7 +5,9 @@ const FlowSchema: mongoose.Schema = new mongoose.Schema(
     name: String,
     type: { type: String, default: "newNode" },
     orgId:{type: String, required: true},
-    parent_id: {type:String, default: ""},
+    parentBusinessUnit_id: {type:String, default: ""},
+    parentBillingUnit_id: {type:String, default: ""},
+    parentMonitoringUnit_id: {type:String, default: ""},
     description: String,
     features: {
       businessUnit: { type: Boolean, default: false },

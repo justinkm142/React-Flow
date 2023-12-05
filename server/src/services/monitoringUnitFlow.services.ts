@@ -2,11 +2,11 @@ import flowModel from "../models/reactFlow.model";
 
 import { Node } from "@/interfaces/node.interface";
 
-class BillingUnitFlowServices {
+class MonitoringUnitFlowServices {
 
   public flowModel = flowModel;
 
-  public findAllBillingUnit = async (orgId:any) => {
+  public findAllMonitoringUnit = async (orgId:any) => {
     const allNodes = await this.flowModel.find({orgId:orgId, type:{$ne:"newNode"}});
     return allNodes;
   };
@@ -79,7 +79,6 @@ class BillingUnitFlowServices {
       }
     }
 
-    
     let bilkWriteData = dataArray.map((data: any) => {
       let parent_id=""
       if(data.type === "defaultBusinessUnit"){
@@ -116,4 +115,4 @@ class BillingUnitFlowServices {
   };
 }
 
-export default BillingUnitFlowServices;
+export default MonitoringUnitFlowServices;

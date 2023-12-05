@@ -9,6 +9,7 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
 
+import { ReactFlowProvider } from 'reactflow';
 import router from './Routes/Routes'
 
 
@@ -18,7 +19,9 @@ function App() {
 
   return (
     <>
-      <RouterProvider router={router} />
+      <ReactFlowProvider>
+        <RouterProvider router={router} />
+      </ReactFlowProvider>
     </>
   )
 }
