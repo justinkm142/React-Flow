@@ -18,8 +18,6 @@ class FlowController {
       const { orgName, email, password } = req.body
 
       const accountData:any = await this.organizationServices.signupUser({ orgName, email, password });
-
-     
       const createFlow = await this.flowServices.createDefaultBuisnessUsint({orgId:String(accountData._id), name:accountData.orgName, type:"defaultBusinessUnit",features: {businessUnit: true, monitoringUnit: true,billingUnit: true} })
      
       res.status(200).json({ status:"success", accountData:accountData, flowData:createFlow });

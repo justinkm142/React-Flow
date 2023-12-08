@@ -7,13 +7,15 @@ import TroubleshootOutlinedIcon from '@mui/icons-material/TroubleshootOutlined';
 import ReceiptOutlinedIcon from '@mui/icons-material/ReceiptOutlined';
 import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
 import AddIcon from '@mui/icons-material/Add';
+import CustomHandle from "./CustomHandle";
 
 export function MonitoringUnit(props) {
   const handleConnect = (params) => {};
 
   return (
     <Card sx={{ width:"220px", height:"120px" }}>
-      <Handle type="target" position={Position.Top} onConnect={handleConnect} />
+      <CustomHandle type="target" position={Position.Top} isConnectable={1} /> 
+      {/* <Handle type="target" position={Position.Top} onConnect={handleConnect} /> */}
       <CardContent sx={{ backgroundColor: "", padding: "0px" }}>
       <Box
         sx={{

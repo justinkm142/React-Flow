@@ -10,6 +10,9 @@ const initialState = {
     openSideMenu:false,
     node:{},
     nodeNameList:[],
+    version:1,
+    flowStatus:"",
+    loader:true,
 }
 
 export const flowSlice = createSlice({
@@ -88,6 +91,13 @@ export const flowSlice = createSlice({
       state.nodeNameList = [...action.payload]  
 
     },
+    setVersion:(state,action)=>{
+      state.version = Number(action.payload.version);
+      state.flowStatus=action.payload.status;
+    },
+    setLoader:(state,action)=>{
+      state.loader= action.payload;
+    },
   
   },
 })
@@ -108,6 +118,8 @@ export const {
   setNode,
   updateNode,
   setNodeNameList,
+  setVersion,
+  setLoader,
 } = flowSlice.actions
 export default flowSlice.reducer
 

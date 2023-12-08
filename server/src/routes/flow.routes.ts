@@ -19,6 +19,7 @@ class FlowRoute implements Routes {
     this.router.post(`${this.path}`, this.flowController.createFlow);
     this.router.patch(`${this.path}`, this.flowController.updateFlow);
     this.router.put(`${this.path}`, this.flowController.saveFlow);
+    this.router.post(`${this.path}draft`, this.flowController.saveDraftFlow);
     // this.router.post(`${this.path}signup`, this.organizationController.signupUser);
     // this.router.post(`${this.path}login`, this.organizationController.loginUser);
 

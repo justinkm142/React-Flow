@@ -16,6 +16,8 @@ import ReactFlow, {
 } from "reactflow";
 import dagre from "dagre";
 import axios from "axios";
+import EditIcon from '@mui/icons-material/Edit';
+import CircularProgress from '@mui/material/CircularProgress';
 
 // material ui import
 import {
@@ -58,6 +60,8 @@ import {
   setSingleEdge,
   setNode,
   setNodeNameList,
+  setVersion,
+  setLoader,
 } from "../../redux/slices/flow.slices";
 
 import Graph, {traverseToRoot} from "./Logic/Graph";
@@ -95,6 +99,9 @@ const LayoutFlow = () => {
   const edges = useSelector((state) => state.flow.edges);
   const openSideMenu = useSelector((state) => state.flow.openSideMenu);
   const node = useSelector((state) => state.flow.node);
+  const version = useSelector((state) => state.flow.version);
+  const flowStatus = useSelector((state) => state.flow.flowStatus);
+  const loader = useSelector((state) =>state.flow.loader);
 
 
   const navigate = useNavigate();
@@ -298,6 +305,10 @@ const LayoutFlow = () => {
 
       dispatch(setNodes(serverRespose.data.node));
       dispatch(setEdges(serverRespose.data.edges));
+      dispatch(setVersion({version: serverRespose.data.version, status: serverRespose.data.status} ));
+      setTimeout(()=>{
+        dispatch(setLoader(false));
+      },500)
       setloadPage(!loadPage);
     } catch (error) {
       console.log(error);
@@ -369,6 +380,7 @@ const LayoutFlow = () => {
           edges,
           deletedNodes,
           orgId: userData.accountData._id,
+          version,
         },
         headers: {
           Authorization: `Bearer ${token}`,
@@ -377,6 +389,7 @@ const LayoutFlow = () => {
 
       console.log("server response after save", serverRespose.data.status);
       if (serverRespose.data.status === "success") {
+        getNodesFromServer(userData.accountData._id);
         setSnakBarType("success");
         setSnackBarMessage(serverRespose.data.message);
         setOpenSnackbar(true);
@@ -395,6 +408,60 @@ const LayoutFlow = () => {
       setLoading(false);
     }
   };
+
+ // axios - save draft  flow in server
+ const  saveDraftFlowInServer = async (nodes, edges) => {
+  try {
+    setLoading(true);
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    let newVertion =( Number(version)+0.1 ).toFixed(2);
+
+   
+    let serverRespose = await axios({
+      method: "post",
+      url: "http://localhost:4001/draft",
+      data: {
+        nodes,
+        edges,
+        orgId: userData.accountData._id,
+        version:newVertion,
+        status: "Draft",
+      },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    // console.log("server response after draft save", serverRespose.data.draftSaveResponse.flow.pop().version);
+    if (serverRespose.data.status === "success") {
+      setSnakBarType("success");
+      setSnackBarMessage(serverRespose.data.message);
+      setOpenSnackbar(true);
+      let version = serverRespose.data.draftSaveResponse.flow.pop().version;
+      let status = serverRespose.data.draftSaveResponse.status;
+      dispatch(setVersion({version, status} ));
+    }
+    if (serverRespose.data.status === "error") {
+      setSnakBarType("error");
+      setSnackBarMessage(serverRespose.data.message);
+      setOpenSnackbar(true);
+    }
+  } catch (error) {
+    console.log(error);
+    setSnakBarType("error");
+    setSnackBarMessage("internal server error, please try later");
+    setOpenSnackbar(true);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+
+
+
+ 
 
   // function- add nodes
   const addNodes = useCallback(() => {
@@ -437,17 +504,33 @@ const LayoutFlow = () => {
   
 
   return (
+    
     <div
       style={{
-        width: "100vw",
+        width: "full",
         height: "100vh",
         backgroundColor: "rgb(242, 242, 242)",
+        border:"0px",
+        margin:"0px"
       }}
     >
-      <nav style={{width:'full' , height:'50px', backgroundColor:"#ccc"}}>
+      {
+        loader ? 
+        <Box sx={{ display: 'flex', alignItems:"center", justifyContent:"center", height:"100%" }}>
+        <CircularProgress size={70} />
+        </Box>
+        : 
+      <>
+      <nav style={{width:'full' , height:'50px', backgroundColor:"#ccc", display:"flex", justifyContent:"space-between", alignItems:"center", paddingLeft:"30px", paddingRight:"60px"}}>
+          <Typography variant="p">
+            version: {version}
+          </Typography>
             <Typography variant="h4" sx={{textDecoration:"underline", textAlign:"center"}}>
               Organization View
             </Typography>
+            <Typography variant="p">
+            {flowStatus}
+          </Typography>
       </nav>
       <ReactFlowProvider>
         <ReactFlow
@@ -464,7 +547,7 @@ const LayoutFlow = () => {
           nodeTypes={nodeTypes}
           deleteKeyCode={deletablenode ? "Delete" : ""}
         >
-          {loading && (
+          {(loading || loader) && (
             <Box sx={{ width: "100%" }}>
               <LinearProgress />
             </Box>
@@ -481,13 +564,29 @@ const LayoutFlow = () => {
               >
                 <AddIcon />
               </Fab> */}
+           
               <Fab
                 color="secondary"
                 aria-label="edit"
+                onClick={() => saveDraftFlowInServer(nodes, edges)}
+              >
+                {
+                  flowStatus ==="Draft" ? 
+                  <SaveIcon  /> 
+                  : 
+                  <EditIcon />
+                }
+                
+              </Fab>
+
+            {flowStatus ==="Draft" &&   <Fab
+                variant="extended"
                 onClick={() => saveFlowInServer(nodes, edges)}
               >
-                <SaveIcon />
-              </Fab>
+                Deploy Flow
+              </Fab>}
+
+              
               <Fab variant="extended" onClick={() => onLayout("TB")}>
                 Auto Arrange
                 <NavigationIcon sx={{ mr: 1, transform: "rotate(180deg)" }} />
@@ -534,14 +633,17 @@ const LayoutFlow = () => {
             </Stack>
           </Panel>
           <Panel position="top-center">
-           
-
+          
           </Panel>
           <Controls style={{marginBottom:"100PX"}} />
           {/* <MiniMap /> */}
           <Background gap={40} variant={"dots"} size={0} color="#ccc" />
         </ReactFlow>
       </ReactFlowProvider>
+      </>
+    }
+
+
       {PropertyMenu()}
       <Snackbar
         sx={{

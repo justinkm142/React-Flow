@@ -14,7 +14,23 @@ class FlowController {
     next: express.NextFunction
   ) => {
     try {
-      const orgId= req.query.orgId
+      const orgId:string = req.query.orgId as string
+
+      const getDraftFlow = await this.flowServices.getDraftFlow(orgId);
+
+      let version = getDraftFlow[0]?.flow?.pop().version || 1.0;
+      let status = getDraftFlow[0]?.status;
+      if (status === "Draft") {
+          
+          let draftFlow = getDraftFlow[0].flow.pop();
+         
+        return res.status(200).json({ node:draftFlow.nodes, edges:draftFlow.edges, version:draftFlow.version, status:getDraftFlow[0]?.status, flowId:draftFlow.id});
+       
+      }
+
+ 
+
+    
 
       const getAllNode = await this.flowServices.findAllFlow(orgId);
 
@@ -68,7 +84,7 @@ class FlowController {
         });
       });
 
-      res.status(200).json({ node, edges });
+      res.status(200).json({ node, edges, version:version, status:status});
     } catch (error) {
       console.error("Error:", error);
       res.status(500).json({ error: "Internal Server Error" });
@@ -126,7 +142,8 @@ class FlowController {
     next: express.NextFunction
   ) => {
     try {
-      const { nodes, edges, deletedNodes, orgId } = req.body;
+      const { nodes, edges, deletedNodes, orgId,version } = req.body;
+      let status = "Deployed"
 
       const saveNodesResponse = await this.flowServices.saveFlow(
         nodes,
@@ -134,6 +151,14 @@ class FlowController {
         deletedNodes,
         orgId
       );
+
+      const draftSaveResponse = await this.flowServices.saveDraftFlow(
+        nodes,
+       edges,
+       orgId,
+       version,
+       status,
+     );
 
       // console.log(writeNodesResponse)
 
@@ -147,7 +172,29 @@ class FlowController {
 
   // meyhod for convert nodes and edges to graph
 
+public saveDraftFlow = async (req: any, res:express.Response, next: express.NextFunction)=>{
+try {
+  
+  const {nodes, edges , orgId, version, status} = req.body;
 
+  
+
+  const draftSaveResponse = await this.flowServices.saveDraftFlow(
+     nodes,
+    edges,
+    orgId,
+    version,
+    status,
+  );
+
+console.log("draftSaveResponse", draftSaveResponse)
+
+res.status(200).json({status:"success", message:"Draft saved successfully", draftSaveResponse});
+} catch (error) {
+  console.log(error);
+}
+
+} 
 
 }
 

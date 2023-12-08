@@ -1,9 +1,12 @@
 import flowModel from "../models/reactFlow.model";
+import flowDraftModel from "../models/reactFlowDraft.model"
+import mongoose from "mongoose";
 
 import { Node } from "@/interfaces/node.interface";
 
 class flowServices {
   public flowModel = flowModel;
+  public flowDraftModel = flowDraftModel;
 
   public findAllFlow = async (orgId:any) => {
     const allNodes = await this.flowModel.find({orgId:orgId, type:{$ne:"newNode"}});
@@ -228,6 +231,19 @@ class flowServices {
       console.error("error:",error);
     }
   }
+
+  public getDraftFlow = async(orgId:string)=>{
+      const draftFlow:any = await this.flowDraftModel.find({orgId:orgId})
+
+      return draftFlow
+  }
+
+  public saveDraftFlow = async(nodes:any,edges:any,orgId:any, version:any, status:any)=>{
+    let id = String (new mongoose.Types.ObjectId());
+    const draftSaveResponse = await this.flowDraftModel.findOneAndUpdate({orgId:orgId},{$set:{status}, $push: { flow: {nodes,edges,version,id:id}}}, {new: true,  upsert: true})
+    return draftSaveResponse;
+  }
+
   
 }
 
