@@ -18,14 +18,18 @@ class FlowController {
 
       const getDraftFlow = await this.flowServices.getDraftFlow(orgId);
 
-      let version = getDraftFlow[0]?.flow?.pop().version || 1.0;
+   
+      let draftFlow = getDraftFlow[0]?.flow?.pop();
+      let version = draftFlow?.version || 1.0;
       let status = getDraftFlow[0]?.status;
       if (status === "Draft") {
-          
-          let draftFlow = getDraftFlow[0].flow.pop();
          
         return res.status(200).json({ node:draftFlow.nodes, edges:draftFlow.edges, version:draftFlow.version, status:getDraftFlow[0]?.status, flowId:draftFlow.id});
        
+      }
+
+      if(status === "Delete") {
+        status="Deployed"
       }
 
  
@@ -187,9 +191,13 @@ try {
     status,
   );
 
-console.log("draftSaveResponse", draftSaveResponse)
+  let message="Draft saved successfully"
+  if (status==="Delete"){
+    message="Draft deleted successfully"
+  }
 
-res.status(200).json({status:"success", message:"Draft saved successfully", draftSaveResponse});
+
+res.status(200).json({status:"success", message:message, draftSaveResponse});
 } catch (error) {
   console.log(error);
 }

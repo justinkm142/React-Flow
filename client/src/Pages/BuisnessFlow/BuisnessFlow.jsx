@@ -18,6 +18,7 @@ import dagre from "dagre";
 import axios from "axios";
 import EditIcon from '@mui/icons-material/Edit';
 import CircularProgress from '@mui/material/CircularProgress';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 // material ui import
 import {
@@ -29,7 +30,8 @@ import {
   Snackbar,
   LinearProgress,
   Typography,
-  Stack
+  Stack,
+  Tooltip,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import NavigationIcon from "@mui/icons-material/Navigation";
@@ -62,6 +64,8 @@ import {
   setNodeNameList,
   setVersion,
   setLoader,
+  setDeployVersion,
+  resetState
 } from "../../redux/slices/flow.slices";
 
 import Graph, {traverseToRoot} from "./Logic/Graph";
@@ -102,6 +106,7 @@ const LayoutFlow = () => {
   const version = useSelector((state) => state.flow.version);
   const flowStatus = useSelector((state) => state.flow.flowStatus);
   const loader = useSelector((state) =>state.flow.loader);
+  const deployedVersion = useSelector((state) => state.flow.deployVersion);
 
 
   const navigate = useNavigate();
@@ -306,6 +311,7 @@ const LayoutFlow = () => {
       dispatch(setNodes(serverRespose.data.node));
       dispatch(setEdges(serverRespose.data.edges));
       dispatch(setVersion({version: serverRespose.data.version, status: serverRespose.data.status} ));
+      dispatch(setDeployVersion(serverRespose.data.version))
       setTimeout(()=>{
         dispatch(setLoader(false));
       },500)
@@ -410,11 +416,11 @@ const LayoutFlow = () => {
   };
 
  // axios - save draft  flow in server
- const  saveDraftFlowInServer = async (nodes, edges) => {
+ const  saveDraftFlowInServer = async (nodes, edges, status) => {
   try {
     setLoading(true);
     const userData = JSON.parse(localStorage.getItem("userData"));
-    let newVertion =( Number(version)+0.1 ).toFixed(2);
+    let newVertion =  status==="Delete" ? deployedVersion : (Number(version)+0.1 ).toFixed(2);
 
    
     let serverRespose = await axios({
@@ -425,7 +431,7 @@ const LayoutFlow = () => {
         edges,
         orgId: userData.accountData._id,
         version:newVertion,
-        status: "Draft",
+        status: status,
       },
       headers: {
         Authorization: `Bearer ${token}`,
@@ -439,7 +445,12 @@ const LayoutFlow = () => {
       setOpenSnackbar(true);
       let version = serverRespose.data.draftSaveResponse.flow.pop().version;
       let status = serverRespose.data.draftSaveResponse.status;
-      dispatch(setVersion({version, status} ));
+      if (status==="Delete"){
+        getNodesFromServer(userData.accountData._id)
+      }else{
+        dispatch(setVersion({version, status} ));
+      }
+      
     }
     if (serverRespose.data.status === "error") {
       setSnakBarType("error");
@@ -471,6 +482,7 @@ const LayoutFlow = () => {
   // function - handle signout
   const handleSignOut = () => {
     localStorage.clear();
+    dispatch(resetState())
     navigate("/login");
   };
 
@@ -546,6 +558,7 @@ const LayoutFlow = () => {
           fitView={true}
           nodeTypes={nodeTypes}
           deleteKeyCode={deletablenode ? "Delete" : ""}
+          nodesDraggable={ flowStatus==="Deployed" ? false :true}
         >
           {(loading || loader) && (
             <Box sx={{ width: "100%" }}>
@@ -564,19 +577,38 @@ const LayoutFlow = () => {
               >
                 <AddIcon />
               </Fab> */}
-           
+              {
+                  flowStatus ==="Draft" ? 
+                  
+                    <Fab
+                color="primary"
+                aria-label="Cancel"
+                onClick={() => saveDraftFlowInServer(nodes, edges, "Delete")}
+              >
+                <Tooltip title="Delete Changes">
+                  <DeleteOutlineIcon  /> 
+                  </Tooltip>
+              </Fab>
+             
+              :
+              null
+              }
+
               <Fab
                 color="secondary"
                 aria-label="edit"
-                onClick={() => saveDraftFlowInServer(nodes, edges)}
+                onClick={() => saveDraftFlowInServer(nodes, edges,"Draft")}
               >
                 {
                   flowStatus ==="Draft" ? 
-                  <SaveIcon  /> 
+                  <Tooltip title="Save Draft">
+                    <SaveIcon  /> 
+                  </Tooltip>
                   : 
+                  <Tooltip title="Edit Flow">
                   <EditIcon />
-                }
-                
+                  </Tooltip>
+                } 
               </Fab>
 
             {flowStatus ==="Draft" &&   <Fab
@@ -647,7 +679,7 @@ const LayoutFlow = () => {
       {PropertyMenu()}
       <Snackbar
         sx={{
-          marginTop: "60px",
+          marginTop: "110px",
         }}
         open={openSnackbar}
         autoHideDuration={3000}

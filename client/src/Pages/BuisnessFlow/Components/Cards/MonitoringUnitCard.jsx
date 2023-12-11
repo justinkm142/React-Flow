@@ -77,8 +77,7 @@ export function MonitoringUnit(props) {
                 height: "100%",
                 color: "#075985", // Change the icon color as needed
                 zIndex: 1, // Adjust the z-index to control the stacking order
-                maskImage:
-                  "radial-gradient(circle, transparent 100%, black 100%)", // Adjust the mask gradient as needed
+               
               }}
             />
             <div

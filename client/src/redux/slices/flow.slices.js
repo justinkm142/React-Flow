@@ -13,6 +13,7 @@ const initialState = {
     version:1,
     flowStatus:"",
     loader:true,
+    deployVersion:1
 }
 
 export const flowSlice = createSlice({
@@ -95,8 +96,14 @@ export const flowSlice = createSlice({
       state.version = Number(action.payload.version);
       state.flowStatus=action.payload.status;
     },
+    setDeployVersion:(state,action)=>{
+      state.deployVersion = action.payload;
+    },
     setLoader:(state,action)=>{
       state.loader= action.payload;
+    },
+    resetState:(state,action)=>{
+      return { ...initialState };
     },
   
   },
@@ -120,6 +127,8 @@ export const {
   setNodeNameList,
   setVersion,
   setLoader,
+  setDeployVersion,
+  resetState
 } = flowSlice.actions
 export default flowSlice.reducer
 
