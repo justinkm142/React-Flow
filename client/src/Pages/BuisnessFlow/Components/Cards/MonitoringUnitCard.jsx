@@ -8,8 +8,10 @@ import ReceiptOutlinedIcon from '@mui/icons-material/ReceiptOutlined';
 import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import CustomHandle from "./CustomHandle";
+import {useSelector } from "react-redux";
 
 export function MonitoringUnit(props) {
+  const flowStatus = useSelector((state)=>state.flow.flowStatus)
   const handleConnect = (params) => {};
 
   return (
@@ -51,6 +53,7 @@ export function MonitoringUnit(props) {
 
         </Box>
 
+        {flowStatus==="Draft"  && 
         <Box
             sx={{
               display: "flex",
@@ -93,7 +96,7 @@ export function MonitoringUnit(props) {
               }}
             ></div>
           </Box>
-       
+        }
 
         </Box>
         <Box sx={{ textAlign: "center" }}>{props.data.label}</Box>

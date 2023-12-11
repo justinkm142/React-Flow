@@ -8,8 +8,10 @@ import ReceiptOutlinedIcon from '@mui/icons-material/ReceiptOutlined';
 import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import CustomHandle from './CustomHandle';
+import {useSelector } from "react-redux";
 
 export function BusinessUnit(props) {
+  const flowStatus = useSelector((state)=>state.flow.flowStatus)
   const handleConnect = (params) => {};
 
   return (
@@ -53,6 +55,8 @@ export function BusinessUnit(props) {
 
         </Box>
 
+        {flowStatus==="Draft"  && 
+
         <Box
             sx={{
               display: "flex",
@@ -94,8 +98,8 @@ export function BusinessUnit(props) {
                 zIndex: 2, // Adjust the z-index to control the stacking order
               }}
             ></div>
-          </Box>
-
+        </Box>
+ }
         </Box>
         <Box sx={{ textAlign: "center" }}>{props.data.label}</Box>
       </CardContent>

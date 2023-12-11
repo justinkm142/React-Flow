@@ -10,6 +10,7 @@ import SchemaOutlinedIcon from '@mui/icons-material/SchemaOutlined';
 import { styled } from '@mui/material/styles';
 import { red } from "@mui/material/colors";
 import AddIcon from '@mui/icons-material/Add';
+import {useSelector } from "react-redux";
 
 
 
@@ -25,6 +26,7 @@ const Item = styled(Paper)(({ theme }) => ({
 
 
 export function DefaultBusinessUnit(props) {
+  const flowStatus = useSelector((state)=>state.flow.flowStatus)
   const handleConnect = (params) => {};
 
   return (
@@ -66,6 +68,9 @@ export function DefaultBusinessUnit(props) {
           </Typography>
          
         </Box>
+
+        {flowStatus==="Draft"  && 
+
           <Box
             sx={{
               display: "flex",
@@ -108,6 +113,7 @@ export function DefaultBusinessUnit(props) {
               }}
             ></div>
           </Box>
+        }
           </Box>
         <Box sx={{ textAlign: "center" }}>{props.data.label}</Box>
       </CardContent>

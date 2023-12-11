@@ -8,10 +8,12 @@ import ReceiptOutlinedIcon from '@mui/icons-material/ReceiptOutlined';
 import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import CustomHandle from "./CustomHandle";
+import {useSelector } from "react-redux";
 
 
 
 export function BillingUnit(props) {
+  const flowStatus = useSelector((state)=>state.flow.flowStatus)
   const handleConnect = (params) => {};
 
   
@@ -69,7 +71,7 @@ export function BillingUnit(props) {
             </Typography>
           </Box>
 
-          
+          {flowStatus==="Draft"  && 
           <Box
             sx={{
               display: "flex",
@@ -112,6 +114,7 @@ export function BillingUnit(props) {
               }}
             ></div>
           </Box>
+          }
         </Box>
         <Box sx={{ textAlign: "center" }}>{props.data.label}</Box>
       </CardContent>
