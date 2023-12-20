@@ -114,7 +114,7 @@ class FlowController {
         type: writeNodesResponse.type,
         position: { x: 100, y: 200 },
       };
-
+      console.log("node", node)
       res.status(200).json({ node });
     } catch (error) {
       console.error("Error:", error);

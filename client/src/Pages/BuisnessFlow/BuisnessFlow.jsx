@@ -245,7 +245,7 @@ const LayoutFlow = () => {
           url: "http://localhost:4001/",
           data: {
             name: "New BU",
-            type: "newNode",
+            type: "businessUnit",
             parentBusinessUnit_id: node.id,
             parentBillingUnit_id:parentBillingUnit_id,
             parentMonitoringUnit_id:parentMonitoringUnit_id,

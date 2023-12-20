@@ -10,7 +10,7 @@ const FlowSchema: mongoose.Schema = new mongoose.Schema(
     parentMonitoringUnit_id: {type:String, default: ""},
     description: String,
     features: {
-      businessUnit: { type: Boolean, default: false },
+      businessUnit: { type: Boolean, default: true },
       monitoringUnit: { type: Boolean, default: false },
       billingUnit: { type: Boolean, default: false },
     },
