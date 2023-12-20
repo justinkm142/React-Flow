@@ -36,7 +36,7 @@ import MuiAlert from "@mui/material/Alert";
 
 // component import
 import { nodeTypes } from "./Components/Cards/Index";
-import TemporaryDrawer from "./Components/PropertyMenu/DefaultBuisnessUnitMenu";
+
 import PropertyMenu from "./Components/PropertyMenu";
 import "reactflow/dist/style.css";
 import { useNavigate } from "react-router-dom";

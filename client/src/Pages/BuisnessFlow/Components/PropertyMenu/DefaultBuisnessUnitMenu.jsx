@@ -30,7 +30,6 @@ import { setSideMenu } from "../../../../redux/slices/flow.slices";
 // parant componant 
 export default function TemporaryDrawer({
   updateNode,
-  nodeNameList,
   
 }) {
 
@@ -39,6 +38,7 @@ export default function TemporaryDrawer({
   const openSideMenu = useSelector((state)=> state.flow.openSideMenu)
   const node = useSelector((state)=> state.flow.node)
   const edges = useSelector((state)=> state.flow.edges)
+  const nodeNameList = useSelector((state)=> state.flow.nodeNameList)
   
   const toggleDrawer = () => {
     dispatch(setSideMenu(false))
@@ -111,14 +111,28 @@ const FormForUpdate = ({ toggleDrawer, nodeNameList }) => {
   );
 
   const node = useSelector((state)=>state.flow.node)
+  const edges = useSelector((state)=>state.flow.edges);
 
   const [values, setValues] = React.useState({ ...node });
+  const [isDefault, setIsDefault] = React.useState(false);
+  const [nameError, setNameError] = React.useState(false);
+  const [parantChange, setParantChange] = React.useState({status:false, newParantId:"",oldParantId:"", nodeId:node.id });
+  const [parantId, setParantId] = React.useState("")
+
+  React.useEffect(()=>{
+
+    let getparantId = edges.filter((data)=>{
+      if(data.target ===values.id){
+        return data.source
+      }})[0]?.source || ""
+      
+      setParantId(getparantId)
+
+  },[])
+
+
 
   
-
-
-
-  console.log("node data", node);
 
   //   const onChangeImageUpload = (imageItem) => {
   //     setCurrentLogo(imageItem[0].dataURL);
@@ -126,6 +140,12 @@ const FormForUpdate = ({ toggleDrawer, nodeNameList }) => {
 
   const handleChange = (e) => {
     if (e.target.name === "buisnessUnitName") {
+      let nameList = nodeNameList.map(data=>data.name)
+      if(nameList.includes(e.target.value)){
+          setNameError(true)
+      }else{
+        setNameError(false)
+      }
       setValues((prev) => {
         return { ...prev, data: { ...prev.data, label: e.target.value } };
       });
@@ -242,6 +262,8 @@ const FormForUpdate = ({ toggleDrawer, nodeNameList }) => {
                       type="text"
                       value={values?.data?.label}
                       onChange={handleChange}
+                      error={nameError}
+                      helperText={ nameError ?  "Name already used" : ''}
                       sx={{
                         "& legend": { display: "none" },
                         "& fieldset": { top: 0 },
@@ -337,12 +359,14 @@ const FormForUpdate = ({ toggleDrawer, nodeNameList }) => {
                     color="secondary"
                     size="large"
                     type="button"
-                    disabled={false}
+                    disabled={nameError}
                     className="btn-theme"
                     onClick={() => {
+                      
                       toggleDrawer();
-                  
-                      dispatch(updateNode({node:{...values}}))
+                      
+                      dispatch(updateNode({node:{...values},parantChange:{...parantChange},isDefault}))
+
                     }}
                   >
                     Save

@@ -72,7 +72,7 @@ export const flowSlice = createSlice({
       
     },
     updateNode:(state,action)=>{
-      
+     
       let node = action.payload.node;
       let isDefault = action.payload.isDefault;
       let parantChange = action.payload.parantChange;
@@ -94,7 +94,7 @@ export const flowSlice = createSlice({
     },
     setVersion:(state,action)=>{
       state.version = Number(action.payload.version);
-      state.flowStatus=action.payload.status;
+      state.flowStatus=action.payload?.status;
     },
     setDeployVersion:(state,action)=>{
       state.deployVersion = action.payload;
@@ -178,7 +178,7 @@ const updateNodeFunction = (node, isDefault, parantChange, nodes, edges) => {
 
   if(isDefault){
     return changeDefaultUnit(node, tempNodes, nodes, edges)
-  }else if(parantChange.status===true){
+  }else if(parantChange?.status===true){
     return changeParant(parantChange,tempNodes,nodes, edges)
   }
   else{

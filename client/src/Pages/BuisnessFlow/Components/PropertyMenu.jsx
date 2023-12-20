@@ -9,6 +9,8 @@ import {  useSelector } from "react-redux";
 const PropertyMenu = (  ) => {
  const node = useSelector((state)=>state.flow.node)
 
+
+
   let props = {};
 
 

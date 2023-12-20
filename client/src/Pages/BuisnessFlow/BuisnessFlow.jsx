@@ -107,6 +107,7 @@ const LayoutFlow = () => {
   const flowStatus = useSelector((state) => state.flow.flowStatus);
   const loader = useSelector((state) =>state.flow.loader);
   const deployedVersion = useSelector((state) => state.flow.deployVersion);
+  
 
 
   const navigate = useNavigate();
@@ -203,11 +204,11 @@ const LayoutFlow = () => {
     }
   };
 
-  // function - add node to its parant on double click
+  // function - add node to its parant on double click temerarly desabled 
   const onNodeDoubleClick = async (e, node) => {
     window.clearTimeout(timeoutForMouseClick);
     console.log("double", node);
-    createChildtoParant(node)
+    // createChildtoParant(node)
   };
 
 
