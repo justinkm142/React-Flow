@@ -314,7 +314,7 @@ const LayoutFlow = () => {
       dispatch(setDeployVersion(serverRespose.data.version))
       setTimeout(()=>{
         dispatch(setLoader(false));
-      },500)
+      },100)
       setloadPage(!loadPage);
     } catch (error) {
       console.log(error);
@@ -534,13 +534,13 @@ const LayoutFlow = () => {
         : 
       <>
       <nav style={{width:'full' , height:'50px', backgroundColor:"#ccc", display:"flex", justifyContent:"space-between", alignItems:"center", paddingLeft:"30px", paddingRight:"60px"}}>
-          <Typography variant="p">
-            version: {version}
+          <Typography variant="p" sx={{fontFamily:"Segoe UI"}} >
+            Version: <span style={{fontWeight:"900"}}>{version}</span>
           </Typography>
             <Typography variant="h4" sx={{textDecoration:"underline", textAlign:"center"}}>
               Organization View
             </Typography>
-            <Typography variant="p">
+            <Typography variant="p" sx={{width:"60px", textAlign:"right", fontWeight:"700", fontFamily:"Segoe UI"}}>
             {flowStatus}
           </Typography>
       </nav>

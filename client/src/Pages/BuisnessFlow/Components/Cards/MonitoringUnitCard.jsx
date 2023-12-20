@@ -52,7 +52,7 @@ export function MonitoringUnit(props) {
           </Typography>
 
         </Box>
-
+        <Box sx={{width:"26px", height:"25px"}}>
         {flowStatus==="Draft"  && 
         <Box
             sx={{
@@ -97,7 +97,7 @@ export function MonitoringUnit(props) {
             ></div>
           </Box>
         }
-
+         </Box>
         </Box>
         <Box sx={{ textAlign: "center" }}>{props.data.label}</Box>
       </CardContent>

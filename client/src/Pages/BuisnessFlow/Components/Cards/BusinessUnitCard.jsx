@@ -55,6 +55,7 @@ export function BusinessUnit(props) {
 
         </Box>
 
+        <Box sx={{width:"26px", height:"25px"}}>  
         {flowStatus==="Draft"  && 
 
         <Box
@@ -99,7 +100,8 @@ export function BusinessUnit(props) {
               }}
             ></div>
         </Box>
- }
+        }
+        </Box>
         </Box>
         <Box sx={{ textAlign: "center" }}>{props.data.label}</Box>
       </CardContent>
