@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import { getConnectedEdges, Handle, useNodeId, useStore } from 'reactflow';
-import { useSelector } from "react-redux";
 
 const selector = (s) => ({
     nodeInternals: s.nodeInternals,
@@ -8,10 +7,8 @@ const selector = (s) => ({
 });
 
 
-
 const CustomHandle = (props) => {
-    const { nodeInternals } = useStore(selector);
-    const edges = useSelector((state) => state.flow.edges);
+    const { nodeInternals, edges } = useStore(selector);
     const nodeId = useNodeId();
 
     const isHandleConnectable = useMemo(() => {

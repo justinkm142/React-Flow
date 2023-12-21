@@ -11,11 +11,13 @@ import CustomHandle from './CustomHandle';
 import {useSelector } from "react-redux";
 
 export function BusinessUnit(props) {
+ 
   const flowStatus = useSelector((state)=>state.flow.flowStatus)
   const handleConnect = (params) => {};
 
   return (
-    <Card sx={{ width:"220px", height:"120px" }}>
+      <Card sx={{ width: "220px", height: "120px", border: props.selected ? "2px solid black" : "" }}>
+      {/* <Card sx={{ width: "220px", height: "120px"}}> */}
 
       <CustomHandle type="target" position={Position.Top} isConnectable={1} /> 
       {/* <Handle type="target" position={Position.Top} onConnect={handleConnect} /> */}

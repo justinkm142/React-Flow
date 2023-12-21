@@ -556,7 +556,6 @@ const LayoutFlow = () => {
           onConnect={(connection) => dispatch(onConnect(connection))}
           onNodeClick={onNodeClick}
           onNodesDelete={onNodesDelete}
-          
           onNodeDoubleClick={onNodeDoubleClick}
           connectionLineType={ConnectionLineType.SmoothStep}
           fitView={true}

@@ -20,7 +20,7 @@ export function BillingUnit(props) {
 
 
   return (
-    <Card sx={{ width: "220px", height: "120px" }}>
+    <Card sx={{ width: "220px", height: "120px", border: props.selected ? "2px solid black" : "" }}>
       <CustomHandle type="target" position={Position.Top} isConnectable={1} /> 
       {/* <Handle type="target" position={Position.Top} onConnect={handleConnect} /> */}
       <CardContent sx={{ backgroundColor: "", padding: "0px" }}>

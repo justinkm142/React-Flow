@@ -30,7 +30,7 @@ export function DefaultBusinessUnit(props) {
   const handleConnect = (params) => {};
 
   return (
-    <Card sx={{ width:"250px", height:"120px" }}>
+    <Card sx={{ width:"250px", height:"120px",border: props.selected ? "2px solid black" : "" }}>
       {/* <Handle type="target" position={Position.Top} onConnect={handleConnect} isConnectable={false} /> */}
       <CardContent sx={{ backgroundColor: "", padding: "0px" }}>
       <Box
