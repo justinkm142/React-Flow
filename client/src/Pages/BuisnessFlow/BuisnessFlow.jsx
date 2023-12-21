@@ -439,6 +439,7 @@ const LayoutFlow = () => {
       },
     });
 
+
     // console.log("server response after draft save", serverRespose.data.draftSaveResponse.flow.pop().version);
     if (serverRespose.data.status === "success") {
       setSnakBarType("success");
@@ -448,10 +449,11 @@ const LayoutFlow = () => {
       let status = serverRespose.data.draftSaveResponse.status;
       if (status==="Delete"){
         getNodesFromServer(userData.accountData._id)
+        deletedNodes.length=0;
       }else{
         dispatch(setVersion({version, status} ));
       }
-      
+
     }
     if (serverRespose.data.status === "error") {
       setSnakBarType("error");

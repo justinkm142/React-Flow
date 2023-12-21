@@ -37,10 +37,8 @@ class flowServices {
     // nodes.shift();
     // edges.shift();
 
-    // delete deleted nodes from mongodb
-    const deleteOpRes = await this.flowModel.deleteMany({
-      _id: { $in: deletedNodes },
-    });
+    
+
 
     
   
@@ -149,16 +147,11 @@ class flowServices {
 
     });
 
-    console.log("dataArray=====>>>", dataArray, "<<<=====dataArray")
-
-
-
-
-
+    
 
     let k: any;
     for (k of dataArray) {
-      if (k.parentBusinessUnit_id === "") {
+      if (k.parentBusinessUnit_id === "" || k.parentBusinessUnit_id === null) {
         return {
           status: "error",
           message: `please connect ${k.name} to its parent`,
@@ -175,6 +168,10 @@ class flowServices {
         };
       }
     }
+    // function for remove deleted nodes from database by user  
+    const deleteOpRes = await this.flowModel.deleteMany({
+      _id: { $in: deletedNodes },
+    });
 
     let bilkWriteData = dataArray.map((data: any) => {
       let parent_id=""

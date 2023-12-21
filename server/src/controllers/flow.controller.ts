@@ -156,13 +156,16 @@ class FlowController {
         orgId
       );
 
-      const draftSaveResponse = await this.flowServices.saveDraftFlow(
-        nodes,
-       edges,
-       orgId,
-       version,
-       status,
-     );
+      if(saveNodesResponse.status==="success"){
+        const draftSaveResponse = await this.flowServices.saveDraftFlow(
+          nodes,
+         edges,
+         orgId,
+         version,
+         status,
+       );
+      }
+      
 
       // console.log(writeNodesResponse)
 
