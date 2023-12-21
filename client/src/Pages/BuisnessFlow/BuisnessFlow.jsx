@@ -558,7 +558,7 @@ const LayoutFlow = () => {
           connectionLineType={ConnectionLineType.SmoothStep}
           fitView={true}
           nodeTypes={nodeTypes}
-          deleteKeyCode={deletablenode ? "Delete" : ""}
+          deleteKeyCode={deletablenode && (flowStatus==="Draft") ? "Delete" : ""}
           nodesDraggable={ flowStatus==="Deployed" ? false :true}
         >
           {(loading || loader) && (
@@ -643,14 +643,14 @@ const LayoutFlow = () => {
               <Fab variant="extended" onClick={() =>{
               //navigate("/billingUnits")
               }}>
-                Organizaion View
+               Organization View
               </Fab>
             </a>
               <a href="/billingUnits">
               <Fab variant="extended" onClick={() =>{
               //navigate("/billingUnits")
               }}>
-                Billig Units View
+                Billing Unit View
               </Fab>
             </a>
              

@@ -118,7 +118,8 @@ const FormForUpdate = ({ toggleDrawer, nodeNameList }) => {
   const [nameError, setNameError] = React.useState(false);
   const [parantChange, setParantChange] = React.useState({status:false, newParantId:"",oldParantId:"", nodeId:node.id });
   const [parantId, setParantId] = React.useState("")
-
+  const flowStatus = useSelector((state) => state.flow.flowStatus);
+  
   React.useEffect(()=>{
 
     let getparantId = edges.filter((data)=>{
@@ -359,7 +360,7 @@ const FormForUpdate = ({ toggleDrawer, nodeNameList }) => {
                     color="secondary"
                     size="large"
                     type="button"
-                    disabled={nameError}
+                    disabled={nameError || (flowStatus==="Deployed")}
                     className="btn-theme"
                     onClick={() => {
                       

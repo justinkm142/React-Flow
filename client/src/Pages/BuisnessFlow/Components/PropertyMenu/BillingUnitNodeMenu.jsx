@@ -48,6 +48,7 @@ export default function TemporaryDrawer() {
   const node = useSelector((state)=> state.flow.node)
   const edges = useSelector((state)=> state.flow.edges)
   const nodeNameList = useSelector((state)=> state.flow.nodeNameList)
+ 
 
 
   const [state, setState] = React.useState(true);
@@ -128,6 +129,7 @@ const FormForUpdate = ({ toggleDrawer, nodeNameList  }) => {
   const [nameError, setNameError] = React.useState(false);
   const [parantChange, setParantChange] = React.useState({status:false, newParantId:"",oldParantId:"", nodeId:node.id });
   const [parantId, setParantId] = React.useState("")
+  const flowStatus = useSelector((state) => state.flow.flowStatus);
 
   //   const onChangeImageUpload = (imageItem) => {
   //     setCurrentLogo(imageItem[0].dataURL);
@@ -436,7 +438,7 @@ const FormForUpdate = ({ toggleDrawer, nodeNameList  }) => {
                     color="secondary"
                     size="large"
                     type="button"
-                    disabled={nameError}
+                    disabled={nameError || (flowStatus==="Deployed")}
                     className="btn-theme"
                     onClick={() => {
                       toggleDrawer();
